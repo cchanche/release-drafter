@@ -10,6 +10,7 @@
           },
           "nodes": [
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjAwZGU2MzRjYjVmM2MwYjg1NGViMzBiMGFmZTViMTgxNmUzNzJlZDM=",
               "committedDate": "2019-04-27T13:12:07Z",
               "message": "Merge pull request #5 from TimonVS/add-documentation\n\nAdd documentation",
@@ -51,6 +52,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmQ4NTg3ZmRiMjYzNjM5Zjc2NTYxMjQ2ZDUzN2UwNDE4YTJmODZhZWU=",
               "committedDate": "2019-04-27T13:11:55Z",
               "message": "Merge pull request #4 from TimonVS/chore/update-dependencies\n\nUpdate dependencies",
@@ -88,6 +90,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjI1MzQ0MDhmZWI4MzZkYWNjNTFlYzdjMGFmNGYyNDdlN2JlMzlkNzQ=",
               "committedDate": "2019-04-27T13:11:47Z",
               "message": "Merge pull request #3 from TimonVS/fix/bug-fixes\n\nBug fixes",
@@ -132,6 +135,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjQ4ZTkwNTYwNWQ4ODkyNWI1MjJjMmIwMGY2NDZmNzQ0ZmQ5NzZkMjE=",
               "committedDate": "2019-04-27T13:11:38Z",
               "message": "Merge pull request #2 from TimonVS/feature/big-feature\n\nAdd big feature",
@@ -176,6 +180,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjVmNTViZThiOTA2M2IzOWQ5Y2VkYzllNWRkOGZkMDIyMjFiZDMxZjQ=",
               "committedDate": "2019-04-27T13:11:29Z",
               "message": "Merge pull request #1 from TimonVS/feature/alien-technology\n\n👽 Add alien technology",
@@ -217,6 +222,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjg1ODExZmJkYmE2OTViYjk3ZDc3YTVlMmE5NjNiMzFmNTM4YTgyMjM=",
               "committedDate": "2019-04-27T13:05:51Z",
               "message": "Fix typo",
@@ -258,6 +264,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmVkM2FmY2QzNmM4MDhlZWIxNWFhZjc0Zjg3MTNiODVkZTA2ZjBhMTk=",
               "committedDate": "2019-04-27T13:05:41Z",
               "message": "Add documentation",
@@ -299,6 +306,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmQyMTM0MjNmOTBjZjU5Y2YxMmRiNmUwMTIxYjgwNzE1NTE4NGRiNmQ=",
               "committedDate": "2019-04-27T13:03:56Z",
               "message": "Update Mongoose to 5.5.4",
@@ -336,6 +344,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmQ5NTJjMjU1MDI5N2E4NTE1MmJlMWM4MjYwYjI1ZmI4OWYyODFkNDk=",
               "committedDate": "2019-04-27T13:03:27Z",
               "message": "Update Express to 4.16.4",
@@ -373,6 +382,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjFiYmJiM2FhYWFmMTk3MDYyYmRmMjg2ODhiMDk4NTI0NjcxM2NkMTI=",
               "committedDate": "2019-04-27T13:02:04Z",
               "message": "Fixed another bug",
@@ -417,6 +427,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjNlOGE5YTc4ODA3MmRiZDcyMmMxZTkzYTU0NzEzYzI5NzEyNjI5MDY=",
               "committedDate": "2019-04-27T13:01:55Z",
               "message": "Fixed a bug",
@@ -461,6 +472,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmI0YWZlNDc3YTZlMmU0OWFmYzdhYTU1ZWYwODMyOTU4MWJmODRiNDM=",
               "committedDate": "2019-04-27T13:01:14Z",
               "message": "Adjust parameters",
@@ -505,6 +517,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmQwMWJjZmNjNzczMWRlYzNiOTg2OWY5ZTFkYTYwMjlhYTY2NzcyNDA=",
               "committedDate": "2019-04-27T13:00:49Z",
               "message": "Add big feature",
@@ -549,6 +562,7 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjk0ZGViYjMwZTAyYjExNTc1YWQ0YzBmMDNmMWE1ZjdmOTJiMTFiMjg=",
               "committedDate": "2019-04-27T12:59:03Z",
               "message": "Add alien technology",
@@ -590,9 +604,10 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjNhYmJhNTkxOGZmN2QxMmZhYjMyMjA1N2ZiZGMyM2I1MzVlNzZkMDE=",
               "committedDate": "2019-04-27T12:12:59Z",
-              "message": "Add project description to README",
+              "message": "feat(docs): Add project description to README",
               "author": {
                 "name": "Ada Lovelace",
                 "user": null
@@ -602,6 +617,50 @@
               }
             },
             {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
+              "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjNhYmJhNTkxOGZmN2QxMmZhYjMyMjA1N2ZiZGMyM2I1MzVlNzZkMDE=",
+              "committedDate": "2019-04-27T12:12:59Z",
+              "message": "feat(scope): another commit",
+              "author": {
+                "name": "Timon van Spronsen",
+                "user": {
+                  "login": "TimonVS"
+                }
+              },
+              "associatedPullRequests": {
+                "nodes": []
+              }
+            },
+            {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
+              "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjNhYmJhNTkxOGZmN2QxMmZhYjMyMjA1N2ZiZGMyM2I1MzVlNzZkMDE=",
+              "committedDate": "2019-04-27T12:12:59Z",
+              "message": "fix(scope): a bugfix",
+              "author": {
+                "name": "Ada Lovelace",
+                "user": null
+              },
+              "associatedPullRequests": {
+                "nodes": []
+              }
+            },
+            {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
+              "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjNhYmJhNTkxOGZmN2QxMmZhYjMyMjA1N2ZiZGMyM2I1MzVlNzZkMDE=",
+              "committedDate": "2019-04-27T12:12:59Z",
+              "message": "fix(scope): another bugfix",
+              "author": {
+                "name": "Timon van Spronsen",
+                "user": {
+                  "login": "TimonVS"
+                }
+              },
+              "associatedPullRequests": {
+                "nodes": []
+              }
+            },
+            {
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmI5YWI2MGVlNGI4ZjNmYTg0Mjg2NDQ0NjViZGI1YTg4ZDcyZTY1M2E=",
               "committedDate": "2019-04-27T12:03:19Z",
               "message": "Initial commit",

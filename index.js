@@ -194,7 +194,7 @@ module.exports = (app, { getRouter }) => {
 
     const { shouldDraft, version, tag, name } = input
 
-    const releaseInfo = generateReleaseInfo({
+    const releaseInfo = await generateReleaseInfo({
       context,
       commits,
       config,

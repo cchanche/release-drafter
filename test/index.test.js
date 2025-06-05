@@ -336,8 +336,16 @@ describe('release-drafter', () => {
 
                 Individual commits:
 
-                - Add project description to README
-                - Initial commit @TimonVS
+                ### 🚀 Features
+                - **docs:** Add project description to README ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
+                - **scope:** another commit @TimonVS ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
+
+                ### 🐛 Bug fixes
+                - **scope:** a bugfix ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
+                - **scope:** another bugfix @TimonVS ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
+
+                ### 🧐 Uncategorized
+                - Initial commit @TimonVS ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
                 ",
                   "draft": true,
                   "make_latest": "true",
