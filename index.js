@@ -175,13 +175,16 @@ module.exports = (app, { getRouter }) => {
       filterByRange,
     })
 
-    const { commits, pullRequests: mergedPullRequests } =
-      await findCommitsWithAssociatedPullRequests({
-        context,
-        targetCommitish,
-        lastRelease,
-        config,
-      })
+    const {
+      commits,
+      pullRequests: mergedPullRequests,
+      commitsWithoutPullRequests,
+    } = await findCommitsWithAssociatedPullRequests({
+      context,
+      targetCommitish,
+      lastRelease,
+      config,
+    })
 
     const sortedMergedPullRequests = sortPullRequests(
       mergedPullRequests,
@@ -204,6 +207,7 @@ module.exports = (app, { getRouter }) => {
       latest,
       shouldDraft,
       targetCommitish,
+      commitsWithoutPullRequests,
     })
 
     let createOrUpdateReleaseResponse

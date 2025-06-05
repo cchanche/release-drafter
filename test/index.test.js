@@ -303,6 +303,66 @@ describe('release-drafter', () => {
       })
     })
 
+    describe('with individual commits template included', () => {
+      it('displays something in $INDIVIDUAL_COMMITS_CHANGES', async () => {
+        getConfigMock('config-with-individual-commits.yml')
+
+        nock('https://api.github.com')
+          .post('/graphql', (body) =>
+            body.query.includes('query findCommitsWithAssociatedPullRequests')
+          )
+          .reply(200, graphqlCommitsMergeCommit)
+
+        nock('https://api.github.com')
+          .get(
+            '/repos/toolmantim/release-drafter-test-project/releases?per_page=100'
+          )
+          .reply(200, [])
+
+        nock('https://api.github.com')
+          .post(
+            '/repos/toolmantim/release-drafter-test-project/releases',
+            (body) => {
+              expect(body).toMatchInlineSnapshot(`
+                Object {
+                  "body": "Changes:
+                * Add documentation (#5) @TimonVS
+                * Update dependencies (#4) @TimonVS
+                * Bug fixes (#3) @TimonVS
+                * Add big feature (#2) @TimonVS
+                * 👽 Add alien technology (#1) @TimonVS
+
+                Previous tag: ''
+
+                Individual commits:
+
+                - Add project description to README
+                - Initial commit @TimonVS
+                ",
+                  "draft": true,
+                  "make_latest": "true",
+                  "name": "",
+                  "prerelease": false,
+                  "tag_name": "",
+                  "target_commitish": "refs/heads/master",
+                }
+              `)
+              return true
+            }
+          )
+          .reply(200, releasePayload)
+
+        const payload = pushPayload
+
+        await probot.receive({
+          name: 'push',
+          payload,
+        })
+
+        expect.assertions(1)
+      })
+    })
+
     describe('with past releases', () => {
       it('creates a new draft listing the changes', async () => {
         getConfigMock()
