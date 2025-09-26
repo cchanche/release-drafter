@@ -193551,6 +193551,7 @@ module.exports = (app, { getRouter }) => {
       'prerelease-identifier': preReleaseIdentifier,
       'filter-by-range': filterByRange,
       'tag-prefix': tagPrefix,
+      'filter-by-regexp': filterByRegexp,
       latest,
       prerelease,
     } = config
@@ -193566,6 +193567,7 @@ module.exports = (app, { getRouter }) => {
       includePreReleases: shouldIncludePreReleases,
       tagPrefix,
       filterByRange,
+      filterByRegexp,
     })
 
     const {
@@ -193653,6 +193655,7 @@ function getInput() {
     preReleaseIdentifier: core.getInput('prerelease-identifier') || undefined,
     latest: core.getInput('latest')?.toLowerCase() || undefined,
     filterByRange: core.getInput('filter-by-range') || undefined,
+    filterByRegexp: core.getInput('filter-by-regexp') || undefined,
   }
 }
 
@@ -193667,6 +193670,10 @@ function updateConfigFromInput(config, input) {
 
   if (input.filterByRange) {
     config['filter-by-range'] = input.filterByRange
+  }
+
+  if (input.filterByRegexp) {
+    config['filter-by-regexp'] = input.filterByRegexp
   }
 
   if (input.header) {
@@ -194035,6 +194042,7 @@ const DEFAULT_CONFIG = Object.freeze({
   latest: 'true',
   'filter-by-commitish': false,
   'filter-by-range': '*',
+  'filter-by-regexp': '',
   commitish: '',
   'pull-request-limit': 5,
   'category-template': `## $TITLE`,
@@ -194163,6 +194171,7 @@ const findReleases = async ({
   includePreReleases,
   tagPrefix,
   filterByRange,
+  filterByRegexp,
 }) => {
   let releaseCount = 0
   let releases = await context.octokit.paginate(
@@ -194216,11 +194225,19 @@ const findReleases = async ({
           return satisfies
         })
       : commitishFilteredReleases
-  const filteredReleases = tagPrefix
+  let filteredReleases = tagPrefix
     ? semverRangeFilteredReleases.filter((r) =>
         r.tag_name.startsWith(tagPrefix)
       )
     : semverRangeFilteredReleases
+
+  filteredReleases =
+    typeof filterByRegexp === 'string'
+      ? semverRangeFilteredReleases.filter((r) =>
+          new RegExp(filterByRegexp).test(r.tag_name)
+        )
+      : semverRangeFilteredReleases
+
   const sortedSelectedReleases = sortReleases(
     filteredReleases.filter(
       (r) => !r.draft && (!r.prerelease || includePreReleases)
@@ -194985,6 +195002,9 @@ const schema = (context) => {
 
           return value
         }),
+      'filter-by-regexp': Joi.string()
+        .allow('')
+        .default(DEFAULT_CONFIG['filter-by-regexp']),
     })
     .rename('branches', 'references', {
       ignoreUndefined: true,
