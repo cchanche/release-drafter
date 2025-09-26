@@ -337,15 +337,15 @@ describe('release-drafter', () => {
                 Individual commits:
 
                 ### 🚀 Features
-                - **docs:** Add project description to README ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
-                - **scope:** another commit @TimonVS ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
+                - **docs:** Add project description to README ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commit/13f31602f396bc269076ab4d389cfd8ca94b20ba))
+                - **scope:** another commit @TimonVS ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commit/13f31602f396bc269076ab4d389cfd8ca94b20ba))
 
                 ### 🐛 Bug fixes
-                - **scope:** a bugfix ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
-                - **scope:** another bugfix @TimonVS ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
+                - **scope:** a bugfix ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commit/13f31602f396bc269076ab4d389cfd8ca94b20ba))
+                - **scope:** another bugfix @TimonVS ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commit/13f31602f396bc269076ab4d389cfd8ca94b20ba))
 
                 ### 🧐 Uncategorized
-                - Initial commit @TimonVS ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commits/13f3160))
+                - Initial commit @TimonVS ([13f3160](https://github.com/toolmantim/release-drafter-test-project/commit/13f31602f396bc269076ab4d389cfd8ca94b20ba))
                 ",
                   "draft": true,
                   "make_latest": "true",
@@ -3200,6 +3200,139 @@ describe('release-drafter', () => {
             }
           )
           .reply(200, releasePayload)
+
+        await probot.receive({
+          name: 'push',
+          payload: pushPayload,
+        })
+
+        expect.assertions(1)
+      })
+    })
+
+    describe('with filter-by-regexp', () => {
+      it('keeps the desired tag', async () => {
+        getConfigMock('config-with-filter-by-regexp.yml')
+
+        const releases = [
+          release2Payload,
+          releasePayload,
+          release3Payload,
+          {
+            ...release3Payload,
+            tag_name: `a-prefix-${release3Payload.tag_name}`,
+          },
+        ]
+
+        nock('https://api.github.com')
+          .post('/graphql', (body) =>
+            body.query.includes('query findCommitsWithAssociatedPullRequests')
+          )
+          .reply(200, graphqlCommitsNoPRsPayload)
+
+        nock('https://api.github.com')
+          .get('/repos/toolmantim/release-drafter-test-project/releases')
+          .query(true)
+          .reply(200, releases)
+          .post(
+            '/repos/toolmantim/release-drafter-test-project/releases',
+            (body) => {
+              expect(body).toMatchInlineSnapshot(`
+                Object {
+                  "body": "# 🐛 Bug fixes for \`a-prefix-v1.5.0\`
+
+                ## Pull-requests
+
+                * No changes
+
+                ## Individual commits
+
+                ### 🧐 Uncategorized
+                - Commit 5 @TimonVS
+                - Commit 4 @TimonVS
+                - Commit 3 @TimonVS
+                - Commit 2 @TimonVS
+                - Commit 1 @TimonVS
+
+                **Full Changelog**: https://github.com/toolmantim/release-drafter-test-project/compare/a-prefix-v1.5.0...a-prefix-v1.5.1
+                ",
+                  "draft": true,
+                  "make_latest": "true",
+                  "name": "a-prefix-v1.5.1",
+                  "prerelease": false,
+                  "tag_name": "a-prefix-v1.5.1",
+                  "target_commitish": "refs/heads/master",
+                }
+              `)
+              return true
+            }
+          )
+          .reply(200, releases.at(-1))
+
+        await probot.receive({
+          name: 'push',
+          payload: pushPayload,
+        })
+
+        expect.assertions(1)
+      })
+      it('removes the omitted tags', async () => {
+        getConfigMock('config-with-filter-by-regexp-omit.yml')
+
+        const releases = [
+          release2Payload,
+          releasePayload,
+          release3Payload,
+          {
+            ...release3Payload,
+            tag_name: `a-prefix-${release3Payload.tag_name}`,
+          },
+        ]
+
+        nock('https://api.github.com')
+          .post('/graphql', (body) =>
+            body.query.includes('query findCommitsWithAssociatedPullRequests')
+          )
+          .reply(200, graphqlCommitsNoPRsPayload)
+
+        nock('https://api.github.com')
+          .get('/repos/toolmantim/release-drafter-test-project/releases')
+          .query(true)
+          .reply(200, releases)
+          .post(
+            '/repos/toolmantim/release-drafter-test-project/releases',
+            (body) => {
+              expect(body).toMatchInlineSnapshot(`
+                Object {
+                  "body": "# 🐛 Bug fixes for \`v2.0.0\`
+
+                ## Pull-requests
+
+                * No changes
+
+                ## Individual commits
+
+                ### 🧐 Uncategorized
+                - Commit 5 @TimonVS
+                - Commit 4 @TimonVS
+                - Commit 3 @TimonVS
+                - Commit 2 @TimonVS
+                - Commit 1 @TimonVS
+
+                **Full Changelog**: https://github.com/toolmantim/release-drafter-test-project/compare/v2.0.0...v2.0.1
+                ",
+                  "draft": true,
+                  "make_latest": "true",
+                  "name": "v2.0.1",
+                  "prerelease": false,
+                  "tag_name": "v2.0.1",
+                  "target_commitish": "refs/heads/master",
+                }
+              `)
+              return true
+            }
+          )
+          .reply(200, releases.at(-1))
 
         await probot.receive({
           name: 'push',

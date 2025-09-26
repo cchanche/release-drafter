@@ -1,0 +1,17 @@
+name-template: 'v$NEXT_PATCH_VERSION' # Name of the draft-release (default: "Draft")
+tag-template: 'v$NEXT_PATCH_VERSION'
+filter-by-commitish: false
+filter-by-regexp: '^(?!a-prefix-).+'
+category-template: '### $TITLE'
+template: |
+  # 🐛 Bug fixes for `$PREVIOUS_TAG`
+
+  ## Pull-requests
+
+  $CHANGES
+
+  ## Individual commits
+
+  $INDIVIDUAL_COMMITS_CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION

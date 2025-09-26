@@ -158,6 +158,7 @@ module.exports = (app, { getRouter }) => {
       'prerelease-identifier': preReleaseIdentifier,
       'filter-by-range': filterByRange,
       'tag-prefix': tagPrefix,
+      'filter-by-regexp': filterByRegexp,
       latest,
       prerelease,
     } = config
@@ -173,6 +174,7 @@ module.exports = (app, { getRouter }) => {
       includePreReleases: shouldIncludePreReleases,
       tagPrefix,
       filterByRange,
+      filterByRegexp,
     })
 
     const {
@@ -260,6 +262,7 @@ function getInput() {
     preReleaseIdentifier: core.getInput('prerelease-identifier') || undefined,
     latest: core.getInput('latest')?.toLowerCase() || undefined,
     filterByRange: core.getInput('filter-by-range') || undefined,
+    filterByRegexp: core.getInput('filter-by-regexp') || undefined,
   }
 }
 
@@ -274,6 +277,10 @@ function updateConfigFromInput(config, input) {
 
   if (input.filterByRange) {
     config['filter-by-range'] = input.filterByRange
+  }
+
+  if (input.filterByRegexp) {
+    config['filter-by-regexp'] = input.filterByRegexp
   }
 
   if (input.header) {
