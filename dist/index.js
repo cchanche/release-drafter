@@ -193568,13 +193568,16 @@ module.exports = (app, { getRouter }) => {
       filterByRange,
     })
 
-    const { commits, pullRequests: mergedPullRequests } =
-      await findCommitsWithAssociatedPullRequests({
-        context,
-        targetCommitish,
-        lastRelease,
-        config,
-      })
+    const {
+      commits,
+      pullRequests: mergedPullRequests,
+      commitsWithoutPullRequests,
+    } = await findCommitsWithAssociatedPullRequests({
+      context,
+      targetCommitish,
+      lastRelease,
+      config,
+    })
 
     const sortedMergedPullRequests = sortPullRequests(
       mergedPullRequests,
@@ -193584,7 +193587,7 @@ module.exports = (app, { getRouter }) => {
 
     const { shouldDraft, version, tag, name } = input
 
-    const releaseInfo = generateReleaseInfo({
+    const releaseInfo = await generateReleaseInfo({
       context,
       commits,
       config,
@@ -193597,6 +193600,7 @@ module.exports = (app, { getRouter }) => {
       latest,
       shouldDraft,
       targetCommitish,
+      commitsWithoutPullRequests,
     })
 
     let createOrUpdateReleaseResponse
@@ -193741,6 +193745,7 @@ const findCommitsWithPathChangesQuery = /* GraphQL */ `
             }
             nodes {
               id
+              oid
             }
           }
         }
@@ -193773,6 +193778,7 @@ const findCommitsWithAssociatedPullRequestsQuery = /* GraphQL */ `
             }
             nodes {
               id
+              oid
               committedDate
               message
               author {
@@ -193909,7 +193915,11 @@ const findCommitsWithAssociatedPullRequests = async ({
     (pr) => pr.baseRepository.nameWithOwner === repoNameWithOwner && pr.merged
   )
 
-  return { commits, pullRequests }
+  const commitsWithoutPullRequests = commits.filter(
+    (commit) => commit.associatedPullRequests.nodes.length === 0
+  )
+
+  return { commits, pullRequests, commitsWithoutPullRequests }
 }
 
 exports.findCommitsWithAssociatedPullRequestsQuery =
@@ -194121,6 +194131,7 @@ const compareVersions = __nccwpck_require__(89296)
 const regexEscape = __nccwpck_require__(6205)
 const core = __nccwpck_require__(42186)
 const semver = __nccwpck_require__(11383)
+const _ = __nccwpck_require__(90250)
 
 const { getVersionInfo } = __nccwpck_require__(49914)
 const { template } = __nccwpck_require__(47282)
@@ -194366,6 +194377,98 @@ const categorizePullRequests = (pullRequests, config) => {
   return [uncategorizedPullRequests, categorizedPullRequests]
 }
 
+const generateIndividualCommitsChangelog = async (
+  /**
+   * @type ({message?: string; oid?: string; committedDate?: string; author?: {name?: string; user?: {login?: string}};})[]
+   */
+  commitsWithoutPullRequests = [],
+  config,
+  context
+) => {
+  const { owner, repo } = context.repo()
+
+  if (commitsWithoutPullRequests.length > 0) {
+    const { CommitParser } = await __nccwpck_require__.e(/* import() */ 703).then(__nccwpck_require__.bind(__nccwpck_require__, 17703))
+
+    const parser = new CommitParser({})
+
+    const augmentedCommits = commitsWithoutPullRequests.map((c) => {
+      return {
+        ...c,
+        parsed: c.message ? parser.parse(c.message) : undefined,
+      }
+    })
+
+    const writeCommit = (
+      /**
+       * @type (typeof augmentedCommits)[number]
+       */
+      c
+    ) =>
+      `-${c.parsed?.scope ? ` **${c.parsed?.scope}:**` : ''}${` ${
+        c.parsed?.subject || c.parsed?.header || c.message || 'empty message'
+      }`}${c.author?.user?.login ? ` @${c.author.user.login}` : ''}${
+        c?.oid && repo && owner
+          ? ` ([${c.oid.slice(
+              0,
+              7
+            )}](https://github.com/${owner}/${repo}/commit/${c.oid}))`
+          : ''
+      }`
+
+    const typedChanges = Object.entries(
+      _.groupBy(
+        augmentedCommits,
+        (
+          /**
+           * @type (typeof augmentedCommits)[number]
+           */
+          c
+        ) => {
+          switch (c?.parsed?.type) {
+            case 'feat':
+              return '🚀 Features'
+            case 'docs':
+              return '📗 Documentation'
+            case 'fix':
+              return '🐛 Bug fixes'
+            case 'build':
+              return '⚙️ Build system'
+            case 'test':
+              return '🧪 Tests'
+            case 'perf':
+              return '⚡️ Performance'
+            case 'refactor':
+              return '♻️ Refactor'
+            case 'ci':
+              return '🚦 CI / CD'
+            case 'chore':
+            case 'revert':
+              return '🧰 Maintenance'
+            case 'style':
+              return '🎨 Style'
+            case undefined:
+            case null:
+            case '':
+              return '🧐 Uncategorized'
+            default:
+              return c.parsed.type
+          }
+        }
+      )
+    )
+      .map(
+        ([type, commitsForType]) =>
+          `### ${type}\n${commitsForType.map((c) => writeCommit(c)).join('\n')}`
+      )
+      .join('\n\n')
+
+    return typedChanges
+  } else {
+    return config['no-changes-template']
+  }
+}
+
 const generateChangeLog = (mergedPullRequests, config) => {
   if (mergedPullRequests.length === 0) {
     return config['no-changes-template']
@@ -194508,7 +194611,7 @@ const resolveVersionKeyIncrement = (
   return `pre${versionKeyIncrement}`
 }
 
-const generateReleaseInfo = ({
+const generateReleaseInfo = async ({
   context,
   commits,
   config,
@@ -194521,6 +194624,7 @@ const generateReleaseInfo = ({
   latest,
   shouldDraft,
   targetCommitish,
+  commitsWithoutPullRequests,
 }) => {
   const { owner, repo } = context.repo()
 
@@ -194530,6 +194634,11 @@ const generateReleaseInfo = ({
     {
       $PREVIOUS_TAG: lastRelease ? lastRelease.tag_name : '',
       $CHANGES: generateChangeLog(mergedPullRequests, config),
+      $INDIVIDUAL_COMMITS_CHANGES: await generateIndividualCommitsChangelog(
+        commitsWithoutPullRequests,
+        config,
+        context
+      ),
       $CONTRIBUTORS: contributorsSentence({
         commits,
         pullRequests: mergedPullRequests,
@@ -199804,7 +199913,60 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__nccwpck_require__.m = __webpack_modules__;
+/******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/ensure chunk */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.f = {};
+/******/ 		// This file contains only the entry chunk.
+/******/ 		// The chunk loading function for additional chunks
+/******/ 		__nccwpck_require__.e = (chunkId) => {
+/******/ 			return Promise.all(Object.keys(__nccwpck_require__.f).reduce((promises, key) => {
+/******/ 				__nccwpck_require__.f[key](chunkId, promises);
+/******/ 				return promises;
+/******/ 			}, []));
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/get javascript chunk filename */
+/******/ 	(() => {
+/******/ 		// This function allow to reference async chunks
+/******/ 		__nccwpck_require__.u = (chunkId) => {
+/******/ 			// return url for filenames based on template
+/******/ 			return "" + chunkId + ".index.js";
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	(() => {
 /******/ 		__nccwpck_require__.nmd = (module) => {
@@ -199817,6 +199979,48 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
+/******/ 	
+/******/ 	/* webpack/runtime/require chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded chunks
+/******/ 		// "1" means "loaded", otherwise not loaded yet
+/******/ 		var installedChunks = {
+/******/ 			179: 1
+/******/ 		};
+/******/ 		
+/******/ 		// no on chunks loaded
+/******/ 		
+/******/ 		var installChunk = (chunk) => {
+/******/ 			var moreModules = chunk.modules, chunkIds = chunk.ids, runtime = chunk.runtime;
+/******/ 			for(var moduleId in moreModules) {
+/******/ 				if(__nccwpck_require__.o(moreModules, moduleId)) {
+/******/ 					__nccwpck_require__.m[moduleId] = moreModules[moduleId];
+/******/ 				}
+/******/ 			}
+/******/ 			if(runtime) runtime(__nccwpck_require__);
+/******/ 			for(var i = 0; i < chunkIds.length; i++)
+/******/ 				installedChunks[chunkIds[i]] = 1;
+/******/ 		
+/******/ 		};
+/******/ 		
+/******/ 		// require() chunk loading for javascript
+/******/ 		__nccwpck_require__.f.require = (chunkId, promises) => {
+/******/ 			// "1" is the signal for "already loaded"
+/******/ 			if(!installedChunks[chunkId]) {
+/******/ 				if(true) { // all chunks have JS
+/******/ 					installChunk(require("./" + __nccwpck_require__.u(chunkId)));
+/******/ 				} else installedChunks[chunkId] = 1;
+/******/ 			}
+/******/ 		};
+/******/ 		
+/******/ 		// no external install chunk
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 	})();
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
