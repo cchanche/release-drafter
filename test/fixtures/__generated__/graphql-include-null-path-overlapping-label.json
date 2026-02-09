@@ -2,6 +2,7 @@
   "data": {
     "repository": {
       "object": {
+        "__typename": "Commit",
         "history": {
           "pageInfo": {
             "__typename": "PageInfo",
