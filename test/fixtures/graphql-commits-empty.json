@@ -3,8 +3,10 @@
     "repository": {
       "object": {
         "history": {
+          "__typename": "CommitHistoryConnection",
           "totalCount": 5,
           "pageInfo": {
+            "__typename": "PageInfo",
             "hasNextPage": false,
             "endCursor": "83041a4962107d6bd0282e518ae402dd97ca8daf 24"
           },

@@ -4,6 +4,7 @@
       "object": {
         "history": {
           "pageInfo": {
+            "__typename": "PageInfo",
             "hasNextPage": false,
             "endCursor": "ed0a2bec8c895bb908638795c9da64763be75120 1"
           },
