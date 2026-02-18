@@ -4,25 +4,26 @@ import require$$0$1 from "crypto";
 import require$$1 from "fs";
 import require$$1$6 from "path";
 import require$$2 from "http";
-import require$$1$1 from "https";
-import require$$0$4 from "net";
-import require$$1$2 from "tls";
-import require$$4 from "events";
-import require$$0$3 from "assert";
-import require$$0$2 from "util";
+import require$$1$5 from "https";
+import { r as requireTunnel } from "./index4.js";
+import require$$0$2 from "assert";
+import require$$0$3 from "net";
 import require$$0$5 from "stream";
 import require$$7 from "buffer";
+import require$$0$4 from "util";
 import require$$8 from "querystring";
 import require$$14 from "stream/web";
 import require$$0$7 from "node:stream";
-import require$$1$3 from "node:util";
+import require$$1$1 from "node:util";
 import require$$0$6 from "node:events";
 import require$$0$8 from "worker_threads";
 import require$$2$1 from "perf_hooks";
 import require$$5 from "util/types";
+import require$$4 from "events";
+import require$$1$2 from "tls";
 import require$$4$1 from "async_hooks";
-import require$$1$4 from "console";
-import require$$1$5 from "url";
+import require$$1$3 from "console";
+import require$$1$4 from "url";
 import require$$3 from "zlib";
 import require$$6 from "string_decoder";
 import require$$0$9 from "diagnostics_channel";
@@ -314,242 +315,6 @@ function requireProxy() {
     }
   }
   return proxy;
-}
-var tunnel$1 = {};
-var hasRequiredTunnel$1;
-function requireTunnel$1() {
-  if (hasRequiredTunnel$1) return tunnel$1;
-  hasRequiredTunnel$1 = 1;
-  var tls = require$$1$2;
-  var http = require$$2;
-  var https = require$$1$1;
-  var events2 = require$$4;
-  var util2 = require$$0$2;
-  tunnel$1.httpOverHttp = httpOverHttp;
-  tunnel$1.httpsOverHttp = httpsOverHttp;
-  tunnel$1.httpOverHttps = httpOverHttps;
-  tunnel$1.httpsOverHttps = httpsOverHttps;
-  function httpOverHttp(options) {
-    var agent2 = new TunnelingAgent(options);
-    agent2.request = http.request;
-    return agent2;
-  }
-  function httpsOverHttp(options) {
-    var agent2 = new TunnelingAgent(options);
-    agent2.request = http.request;
-    agent2.createSocket = createSecureSocket;
-    agent2.defaultPort = 443;
-    return agent2;
-  }
-  function httpOverHttps(options) {
-    var agent2 = new TunnelingAgent(options);
-    agent2.request = https.request;
-    return agent2;
-  }
-  function httpsOverHttps(options) {
-    var agent2 = new TunnelingAgent(options);
-    agent2.request = https.request;
-    agent2.createSocket = createSecureSocket;
-    agent2.defaultPort = 443;
-    return agent2;
-  }
-  function TunnelingAgent(options) {
-    var self = this;
-    self.options = options || {};
-    self.proxyOptions = self.options.proxy || {};
-    self.maxSockets = self.options.maxSockets || http.Agent.defaultMaxSockets;
-    self.requests = [];
-    self.sockets = [];
-    self.on("free", function onFree(socket, host, port, localAddress) {
-      var options2 = toOptions(host, port, localAddress);
-      for (var i = 0, len = self.requests.length; i < len; ++i) {
-        var pending = self.requests[i];
-        if (pending.host === options2.host && pending.port === options2.port) {
-          self.requests.splice(i, 1);
-          pending.request.onSocket(socket);
-          return;
-        }
-      }
-      socket.destroy();
-      self.removeSocket(socket);
-    });
-  }
-  util2.inherits(TunnelingAgent, events2.EventEmitter);
-  TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
-    var self = this;
-    var options = mergeOptions({ request: req }, self.options, toOptions(host, port, localAddress));
-    if (self.sockets.length >= this.maxSockets) {
-      self.requests.push(options);
-      return;
-    }
-    self.createSocket(options, function(socket) {
-      socket.on("free", onFree);
-      socket.on("close", onCloseOrRemove);
-      socket.on("agentRemove", onCloseOrRemove);
-      req.onSocket(socket);
-      function onFree() {
-        self.emit("free", socket, options);
-      }
-      function onCloseOrRemove(err) {
-        self.removeSocket(socket);
-        socket.removeListener("free", onFree);
-        socket.removeListener("close", onCloseOrRemove);
-        socket.removeListener("agentRemove", onCloseOrRemove);
-      }
-    });
-  };
-  TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
-    var self = this;
-    var placeholder = {};
-    self.sockets.push(placeholder);
-    var connectOptions = mergeOptions({}, self.proxyOptions, {
-      method: "CONNECT",
-      path: options.host + ":" + options.port,
-      agent: false,
-      headers: {
-        host: options.host + ":" + options.port
-      }
-    });
-    if (options.localAddress) {
-      connectOptions.localAddress = options.localAddress;
-    }
-    if (connectOptions.proxyAuth) {
-      connectOptions.headers = connectOptions.headers || {};
-      connectOptions.headers["Proxy-Authorization"] = "Basic " + new Buffer(connectOptions.proxyAuth).toString("base64");
-    }
-    debug("making CONNECT request");
-    var connectReq = self.request(connectOptions);
-    connectReq.useChunkedEncodingByDefault = false;
-    connectReq.once("response", onResponse);
-    connectReq.once("upgrade", onUpgrade);
-    connectReq.once("connect", onConnect);
-    connectReq.once("error", onError);
-    connectReq.end();
-    function onResponse(res) {
-      res.upgrade = true;
-    }
-    function onUpgrade(res, socket, head) {
-      process.nextTick(function() {
-        onConnect(res, socket, head);
-      });
-    }
-    function onConnect(res, socket, head) {
-      connectReq.removeAllListeners();
-      socket.removeAllListeners();
-      if (res.statusCode !== 200) {
-        debug(
-          "tunneling socket could not be established, statusCode=%d",
-          res.statusCode
-        );
-        socket.destroy();
-        var error = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
-        error.code = "ECONNRESET";
-        options.request.emit("error", error);
-        self.removeSocket(placeholder);
-        return;
-      }
-      if (head.length > 0) {
-        debug("got illegal response body from proxy");
-        socket.destroy();
-        var error = new Error("got illegal response body from proxy");
-        error.code = "ECONNRESET";
-        options.request.emit("error", error);
-        self.removeSocket(placeholder);
-        return;
-      }
-      debug("tunneling connection has established");
-      self.sockets[self.sockets.indexOf(placeholder)] = socket;
-      return cb(socket);
-    }
-    function onError(cause) {
-      connectReq.removeAllListeners();
-      debug(
-        "tunneling socket could not be established, cause=%s\n",
-        cause.message,
-        cause.stack
-      );
-      var error = new Error("tunneling socket could not be established, cause=" + cause.message);
-      error.code = "ECONNRESET";
-      options.request.emit("error", error);
-      self.removeSocket(placeholder);
-    }
-  };
-  TunnelingAgent.prototype.removeSocket = function removeSocket(socket) {
-    var pos = this.sockets.indexOf(socket);
-    if (pos === -1) {
-      return;
-    }
-    this.sockets.splice(pos, 1);
-    var pending = this.requests.shift();
-    if (pending) {
-      this.createSocket(pending, function(socket2) {
-        pending.request.onSocket(socket2);
-      });
-    }
-  };
-  function createSecureSocket(options, cb) {
-    var self = this;
-    TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
-      var hostHeader = options.request.getHeader("host");
-      var tlsOptions = mergeOptions({}, self.options, {
-        socket,
-        servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options.host
-      });
-      var secureSocket = tls.connect(0, tlsOptions);
-      self.sockets[self.sockets.indexOf(socket)] = secureSocket;
-      cb(secureSocket);
-    });
-  }
-  function toOptions(host, port, localAddress) {
-    if (typeof host === "string") {
-      return {
-        host,
-        port,
-        localAddress
-      };
-    }
-    return host;
-  }
-  function mergeOptions(target) {
-    for (var i = 1, len = arguments.length; i < len; ++i) {
-      var overrides = arguments[i];
-      if (typeof overrides === "object") {
-        var keys = Object.keys(overrides);
-        for (var j = 0, keyLen = keys.length; j < keyLen; ++j) {
-          var k = keys[j];
-          if (overrides[k] !== void 0) {
-            target[k] = overrides[k];
-          }
-        }
-      }
-    }
-    return target;
-  }
-  var debug;
-  if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
-    debug = function() {
-      var args = Array.prototype.slice.call(arguments);
-      if (typeof args[0] === "string") {
-        args[0] = "TUNNEL: " + args[0];
-      } else {
-        args.unshift("TUNNEL:");
-      }
-      console.error.apply(console, args);
-    };
-  } else {
-    debug = function() {
-    };
-  }
-  tunnel$1.debug = debug;
-  return tunnel$1;
-}
-var tunnel;
-var hasRequiredTunnel;
-function requireTunnel() {
-  if (hasRequiredTunnel) return tunnel;
-  hasRequiredTunnel = 1;
-  tunnel = requireTunnel$1();
-  return tunnel;
 }
 var undici = {};
 var symbols$4;
@@ -957,14 +722,14 @@ var hasRequiredUtil$6;
 function requireUtil$6() {
   if (hasRequiredUtil$6) return util$6;
   hasRequiredUtil$6 = 1;
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { kDestroyed, kBodyUsed } = requireSymbols$4();
   const { IncomingMessage } = require$$2;
   const stream = require$$0$5;
-  const net = require$$0$4;
+  const net = require$$0$3;
   const { InvalidArgumentError } = requireErrors();
   const { Blob: Blob2 } = require$$7;
-  const nodeUtil = require$$0$2;
+  const nodeUtil = require$$0$4;
   const { stringify } = require$$8;
   const { headerNameLowerCasedRecord } = requireConstants$4();
   const [nodeMajor, nodeMinor] = process.versions.node.split(".").map((v) => Number(v));
@@ -1425,7 +1190,7 @@ function requireSbmh() {
   if (hasRequiredSbmh) return sbmh;
   hasRequiredSbmh = 1;
   const EventEmitter = require$$0$6.EventEmitter;
-  const inherits = require$$1$3.inherits;
+  const inherits = require$$1$1.inherits;
   function SBMH(needle) {
     if (typeof needle === "string") {
       needle = Buffer.from(needle);
@@ -1561,7 +1326,7 @@ var hasRequiredPartStream;
 function requirePartStream() {
   if (hasRequiredPartStream) return PartStream_1;
   hasRequiredPartStream = 1;
-  const inherits = require$$1$3.inherits;
+  const inherits = require$$1$1.inherits;
   const ReadableStream = require$$0$7.Readable;
   function PartStream(opts) {
     ReadableStream.call(this, opts);
@@ -1594,7 +1359,7 @@ function requireHeaderParser() {
   if (hasRequiredHeaderParser) return HeaderParser_1;
   hasRequiredHeaderParser = 1;
   const EventEmitter = require$$0$6.EventEmitter;
-  const inherits = require$$1$3.inherits;
+  const inherits = require$$1$1.inherits;
   const getLimit2 = requireGetLimit();
   const StreamSearch = requireSbmh();
   const B_DCRLF = Buffer.from("\r\n\r\n");
@@ -1694,7 +1459,7 @@ function requireDicer() {
   if (hasRequiredDicer) return Dicer_1;
   hasRequiredDicer = 1;
   const WritableStream = require$$0$7.Writable;
-  const inherits = require$$1$3.inherits;
+  const inherits = require$$1$1.inherits;
   const StreamSearch = requireSbmh();
   const PartStream = requirePartStream();
   const HeaderParser = requireHeaderParser();
@@ -2663,7 +2428,7 @@ function requireMultipart() {
   if (hasRequiredMultipart) return multipart;
   hasRequiredMultipart = 1;
   const { Readable } = require$$0$7;
-  const { inherits } = require$$1$3;
+  const { inherits } = require$$1$1;
   const Dicer = requireDicer();
   const parseParams = requireParseParams();
   const decodeText = requireDecodeText();
@@ -3336,7 +3101,7 @@ function requireMain() {
   if (hasRequiredMain) return main.exports;
   hasRequiredMain = 1;
   const WritableStream = require$$0$7.Writable;
-  const { inherits } = require$$1$3;
+  const { inherits } = require$$1$1;
   const Dicer = requireDicer();
   const MultipartParser = requireMultipart();
   const UrlencodedParser = requireUrlencoded();
@@ -3653,7 +3418,7 @@ function requireUtil$5() {
   const { getGlobalOrigin } = requireGlobal$1();
   const { performance: performance2 } = require$$2$1;
   const { isBlobLike, toUSVString, ReadableStreamFrom } = requireUtil$6();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { isUint8Array } = require$$5;
   let supportedHashes = [];
   let crypto;
@@ -4278,7 +4043,7 @@ var hasRequiredWebidl;
 function requireWebidl() {
   if (hasRequiredWebidl) return webidl_1;
   hasRequiredWebidl = 1;
-  const { types } = require$$0$2;
+  const { types } = require$$0$4;
   const { hasOwn, toUSVString } = requireUtil$5();
   const webidl = {};
   webidl.converters = {};
@@ -4647,7 +4412,7 @@ var hasRequiredDataURL;
 function requireDataURL() {
   if (hasRequiredDataURL) return dataURL;
   hasRequiredDataURL = 1;
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { atob: atob2 } = require$$7;
   const { isomorphicDecode } = requireUtil$5();
   const encoder = new TextEncoder();
@@ -4934,7 +4699,7 @@ function requireFile() {
   if (hasRequiredFile) return file;
   hasRequiredFile = 1;
   const { Blob: Blob2, File: NativeFile } = require$$7;
-  const { types } = require$$0$2;
+  const { types } = require$$0$4;
   const { kState } = requireSymbols$3();
   const { isBlobLike } = requireUtil$5();
   const { webidl } = requireWebidl();
@@ -5291,7 +5056,7 @@ function requireBody() {
   const { DOMException: DOMException2, structuredClone } = requireConstants$3();
   const { Blob: Blob2, File: NativeFile } = require$$7;
   const { kBodyUsed } = requireSymbols$4();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { isErrored } = requireUtil$6();
   const { isUint8Array, isArrayBuffer } = require$$5;
   const { File: UndiciFile } = requireFile();
@@ -5657,7 +5422,7 @@ function requireRequest$1() {
     InvalidArgumentError,
     NotSupportedError
   } = requireErrors();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { kHTTP2BuildRequest, kHTTP2CopyHeaders, kHTTP1BuildRequest } = requireSymbols$4();
   const util2 = requireUtil$6();
   const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/;
@@ -6206,8 +5971,8 @@ var hasRequiredConnect;
 function requireConnect() {
   if (hasRequiredConnect) return connect;
   hasRequiredConnect = 1;
-  const net = require$$0$4;
-  const assert = require$$0$3;
+  const net = require$$0$3;
+  const assert = require$$0$2;
   const util2 = requireUtil$6();
   const { InvalidArgumentError, ConnectTimeoutError } = requireErrors();
   let tls;
@@ -6702,7 +6467,7 @@ function requireRedirectHandler() {
   hasRequiredRedirectHandler = 1;
   const util2 = requireUtil$6();
   const { kBodyUsed } = requireSymbols$4();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { InvalidArgumentError } = requireErrors();
   const EE = require$$4;
   const redirectableStatusCodes = [300, 301, 302, 303, 307, 308];
@@ -6888,8 +6653,8 @@ var hasRequiredClient;
 function requireClient() {
   if (hasRequiredClient) return client;
   hasRequiredClient = 1;
-  const assert = require$$0$3;
-  const net = require$$0$4;
+  const assert = require$$0$2;
+  const net = require$$0$3;
   const http = require$$2;
   const { pipeline } = require$$0$5;
   const util2 = requireUtil$6();
@@ -9227,7 +8992,7 @@ var hasRequiredReadable;
 function requireReadable() {
   if (hasRequiredReadable) return readable;
   hasRequiredReadable = 1;
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { Readable } = require$$0$5;
   const { RequestAbortedError, NotSupportedError, InvalidArgumentError } = requireErrors();
   const util2 = requireUtil$6();
@@ -9479,7 +9244,7 @@ var hasRequiredUtil$4;
 function requireUtil$4() {
   if (hasRequiredUtil$4) return util$4;
   hasRequiredUtil$4 = 1;
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const {
     ResponseStatusCodeError
   } = requireErrors();
@@ -9913,7 +9678,7 @@ function requireApiPipeline() {
   const util2 = requireUtil$6();
   const { AsyncResource } = require$$4$1;
   const { addSignal, removeSignal } = requireAbortSignal();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const kResume = /* @__PURE__ */ Symbol("resume");
   class PipelineRequest extends Readable {
     constructor() {
@@ -10102,7 +9867,7 @@ function requireApiUpgrade() {
   const { AsyncResource } = require$$4$1;
   const util2 = requireUtil$6();
   const { addSignal, removeSignal } = requireAbortSignal();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   class UpgradeHandler extends AsyncResource {
     constructor(opts, callback) {
       if (!opts || typeof opts !== "object") {
@@ -10348,7 +10113,7 @@ function requireMockUtils() {
     types: {
       isPromise
     }
-  } = require$$0$2;
+  } = require$$0$4;
   function matchValue(match, value) {
     if (typeof match === "string") {
       return match === value;
@@ -10775,7 +10540,7 @@ var hasRequiredMockClient;
 function requireMockClient() {
   if (hasRequiredMockClient) return mockClient;
   hasRequiredMockClient = 1;
-  const { promisify } = require$$0$2;
+  const { promisify } = require$$0$4;
   const Client = requireClient();
   const { buildMockDispatch } = requireMockUtils();
   const {
@@ -10828,7 +10593,7 @@ var hasRequiredMockPool;
 function requireMockPool() {
   if (hasRequiredMockPool) return mockPool;
   hasRequiredMockPool = 1;
-  const { promisify } = require$$0$2;
+  const { promisify } = require$$0$4;
   const Pool = requirePool();
   const { buildMockDispatch } = requireMockUtils();
   const {
@@ -10913,7 +10678,7 @@ function requirePendingInterceptorsFormatter() {
   if (hasRequiredPendingInterceptorsFormatter) return pendingInterceptorsFormatter;
   hasRequiredPendingInterceptorsFormatter = 1;
   const { Transform } = require$$0$5;
-  const { Console } = require$$1$4;
+  const { Console } = require$$1$3;
   pendingInterceptorsFormatter = class PendingInterceptorsFormatter {
     constructor({ disableColors } = {}) {
       this.transform = new Transform({
@@ -11091,7 +10856,7 @@ function requireProxyAgent() {
   if (hasRequiredProxyAgent) return proxyAgent;
   hasRequiredProxyAgent = 1;
   const { kProxy, kClose, kDestroy, kInterceptors } = requireSymbols$4();
-  const { URL: URL2 } = require$$1$5;
+  const { URL: URL2 } = require$$1$4;
   const Agent = requireAgent();
   const Pool = requirePool();
   const DispatcherBase = requireDispatcherBase();
@@ -11242,7 +11007,7 @@ var hasRequiredRetryHandler;
 function requireRetryHandler() {
   if (hasRequiredRetryHandler) return RetryHandler_1;
   hasRequiredRetryHandler = 1;
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { kRetryHandlerDefaultRetry } = requireSymbols$4();
   const { RequestRetryError } = requireErrors();
   const { isDisturbed, parseHeaders, parseRangeHeader } = requireUtil$6();
@@ -11582,9 +11347,9 @@ function requireHeaders() {
     isValidHeaderName,
     isValidHeaderValue
   } = requireUtil$5();
-  const util2 = require$$0$2;
+  const util2 = require$$0$4;
   const { webidl } = requireWebidl();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const kHeadersMap = /* @__PURE__ */ Symbol("headers map");
   const kHeadersSortedMap = /* @__PURE__ */ Symbol("headers map sorted");
   function isHTTPWhiteSpaceCharCode(code) {
@@ -11985,8 +11750,8 @@ function requireResponse() {
   const { getGlobalOrigin } = requireGlobal$1();
   const { URLSerializer } = requireDataURL();
   const { kHeadersList, kConstruct } = requireSymbols$4();
-  const assert = require$$0$3;
-  const { types } = require$$0$2;
+  const assert = require$$0$2;
+  const { types } = require$$0$4;
   const ReadableStream = globalThis.ReadableStream || require$$14.ReadableStream;
   const textEncoder = new TextEncoder("utf-8");
   class Response {
@@ -12367,7 +12132,7 @@ function requireRequest() {
   const { getGlobalOrigin } = requireGlobal$1();
   const { URLSerializer } = requireDataURL();
   const { kHeadersList, kConstruct } = requireSymbols$4();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { getMaxListeners, setMaxListeners, getEventListeners, defaultMaxListeners } = require$$4;
   let TransformStream = globalThis.TransformStream;
   const kAbortController = /* @__PURE__ */ Symbol("abortController");
@@ -13020,7 +12785,7 @@ function requireFetch() {
     urlHasHttpsScheme
   } = requireUtil$5();
   const { kState, kHeaders, kGuard, kRealm } = requireSymbols$3();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { safelyExtractBody } = requireBody();
   const {
     redirectStatusSet,
@@ -14376,7 +14141,7 @@ function requireUtil$3() {
   const { getEncoding } = requireEncoding();
   const { DOMException: DOMException2 } = requireConstants$3();
   const { serializeAMimeType, parseMIMEType } = requireDataURL();
-  const { types } = require$$0$2;
+  const { types } = require$$0$4;
   const { StringDecoder } = require$$6;
   const { btoa } = require$$7;
   const staticPropertyDescriptors = {
@@ -14820,7 +14585,7 @@ var hasRequiredUtil$2;
 function requireUtil$2() {
   if (hasRequiredUtil$2) return util$2;
   hasRequiredUtil$2 = 1;
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { URLSerializer } = requireDataURL();
   const { isValidHeaderName } = requireUtil$5();
   function urlEquals(A, B, excludeFragment = false) {
@@ -14863,7 +14628,7 @@ function requireCache() {
   const { kState, kHeaders, kGuard, kRealm } = requireSymbols$3();
   const { fetching } = requireFetch();
   const { urlIsHttpHttpsScheme, createDeferredPromise, readAllBytes } = requireUtil$5();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   const { getGlobalDispatcher } = requireGlobal();
   class Cache {
     /**
@@ -15652,7 +15417,7 @@ function requireParse() {
   const { maxNameValuePairSize, maxAttributeValueSize } = requireConstants$1();
   const { isCTLExcludingHtab } = requireUtil$1();
   const { collectASequenceOfCodePointsFast } = requireDataURL();
-  const assert = require$$0$3;
+  const assert = require$$0$2;
   function parseSetCookie(header) {
     if (isCTLExcludingHtab(header)) {
       return null;
@@ -16772,7 +16537,7 @@ function requireWebsocket() {
   const { ByteParser } = requireReceiver();
   const { kEnumerableProperty, isBlobLike } = requireUtil$6();
   const { getGlobalDispatcher } = requireGlobal();
-  const { types } = require$$0$2;
+  const { types } = require$$0$4;
   let experimentalWarned = false;
   class WebSocket extends EventTarget {
     #events = {
@@ -17351,9 +17116,9 @@ function requireLib() {
   Object.defineProperty(lib, "__esModule", { value: true });
   lib.HttpClient = lib.isHttps = lib.HttpClientResponse = lib.HttpClientError = lib.getProxyUrl = lib.MediaTypes = lib.Headers = lib.HttpCodes = void 0;
   const http = __importStar(require$$2);
-  const https = __importStar(require$$1$1);
+  const https = __importStar(require$$1$5);
   const pm = __importStar(requireProxy());
-  const tunnel2 = __importStar(requireTunnel());
+  const tunnel = __importStar(requireTunnel());
   const undici_1 = requireUndici();
   var HttpCodes;
   (function(HttpCodes2) {
@@ -17803,9 +17568,9 @@ function requireLib() {
         let tunnelAgent;
         const overHttps = proxyUrl.protocol === "https:";
         if (usingSsl) {
-          tunnelAgent = overHttps ? tunnel2.httpsOverHttps : tunnel2.httpsOverHttp;
+          tunnelAgent = overHttps ? tunnel.httpsOverHttps : tunnel.httpsOverHttp;
         } else {
-          tunnelAgent = overHttps ? tunnel2.httpOverHttps : tunnel2.httpOverHttp;
+          tunnelAgent = overHttps ? tunnel.httpOverHttps : tunnel.httpOverHttp;
         }
         agent2 = tunnelAgent(agentOptions);
         this._proxyAgent = agent2;
@@ -18689,7 +18454,7 @@ function requireIo() {
   };
   Object.defineProperty(io, "__esModule", { value: true });
   io.findInPath = io.which = io.mkdirP = io.rmRF = io.mv = io.cp = void 0;
-  const assert_1 = require$$0$3;
+  const assert_1 = require$$0$2;
   const path = __importStar(require$$1$6);
   const ioUtil2 = __importStar(requireIoUtil());
   function cp(source, dest, options = {}) {
@@ -19827,6 +19592,5 @@ const core$1 = /* @__PURE__ */ _mergeNamespaces({
 }, [coreExports]);
 export {
   core$1 as a,
-  coreExports as c,
-  requireTunnel as r
+  coreExports as c
 };

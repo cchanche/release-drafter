@@ -10,6 +10,7 @@ import { resolveVersionKeyIncrement } from './resolve-version-increment'
 import * as core from '@actions/core'
 import { getVersionInfo } from './get-version-info'
 import { ParsedConfig, ExclusiveInput } from '../../config'
+import { generateIndividualCommitsChangelog } from './generate-individual-commits-changelog'
 
 /**
  * Outputs the payload for creating or updating a release.
@@ -66,6 +67,10 @@ export const buildReleasePayload = (params: {
     object: {
       $PREVIOUS_TAG: lastRelease ? lastRelease.tag_name : '',
       $CHANGES: generateChangeLog({ pullRequests: sortedPullRequests, config }),
+      $INDIVIDUAL_COMMITS_CHANGES: generateIndividualCommitsChangelog(
+        commits,
+        config
+      ),
       $CONTRIBUTORS: generateContributorsSentence({
         commits,
         pullRequests: sortedPullRequests,

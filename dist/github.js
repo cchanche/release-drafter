@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "fs";
 import { EOL } from "os";
 import require$$2$1 from "http";
 import require$$1$6 from "https";
-import { r as requireTunnel } from "./core.js";
+import { r as requireTunnel } from "./index4.js";
 import require$$0$2 from "node:assert";
 import require$$0$4 from "node:net";
 import require$$2 from "node:http";

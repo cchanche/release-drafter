@@ -57,6 +57,7 @@ export type AvailableConfigs =
   | 'config-with-yaml-exception'
   | 'config'
   | 'config-filter-range'
+  | 'config-with-individual-commits'
 
 export const mockedConfigModule = async (
   iom: () => Promise<{ composeConfigGet: typeof composeConfigGet }>

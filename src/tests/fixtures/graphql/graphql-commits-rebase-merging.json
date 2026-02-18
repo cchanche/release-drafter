@@ -15,6 +15,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmVkMGEyYmVjOGM4OTViYjkwODYzODc5NWM5ZGE2NDc2M2JlNzUxMjA=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T13:38:31Z",
               "message": "Fix typo",
               "author": {
@@ -59,6 +60,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmZhNDQ2NGQ3MTIyNjg1OTY3MDNjNmI0OGNiNTI4NjkzNzE3NzRlYmY=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T13:38:31Z",
               "message": "Add documentation",
               "author": {
@@ -103,6 +105,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjkxZjkzZTk1YTBhZGRlNzE0MTk4OTc2OWJlMWJhZTVmOWU2ZDQ4MDA=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T13:38:25Z",
               "message": "Update Mongoose to 5.5.4",
               "author": {
@@ -143,6 +146,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjk0NjY1ZWQyMWVjN2YwMTU1MzBkMmRhMWM0ODQzMTVlNTg2NmM2NzY=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T13:38:25Z",
               "message": "Update Express to 4.16.4",
               "author": {
@@ -183,6 +187,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmMyMmY2MjI0OGYzZDAzMWRmMDAxYWRiZWRkNmY0NGZkOGM3YzQyZDY=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T13:38:19Z",
               "message": "Fixed another bug",
               "author": {
@@ -230,6 +235,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmQ5MDRkYWFmMzFmOGZkN2M4NjI3MzlkYWNlMjM0ZGViNGQ5MTA0ZmE=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T13:38:19Z",
               "message": "Fixed a bug",
               "author": {
@@ -277,6 +283,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjRmMmEwNjkxOTRlYWY5MDAwMWM2ZDg3Y2EwN2RhNjA0ZDM1Zjc0YTA=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T13:38:12Z",
               "message": "Adjust parameters",
               "author": {
@@ -324,6 +331,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjJjZjU4MTc2OTZiNTExODRlNzc5MmI4ODczYWI3MTk4ODIwYmU0ZGE=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T13:38:12Z",
               "message": "Add big feature",
               "author": {
@@ -371,6 +379,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjIzMmM2MjQ5MTRmMzMyZmI2MmMwZDdiYmViYmYwYWE4NGIyYjJhZWU=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T13:37:58Z",
               "message": "Add alien technology",
               "author": {
@@ -418,6 +427,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjNhYmJhNTkxOGZmN2QxMmZhYjMyMjA1N2ZiZGMyM2I1MzVlNzZkMDE=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T12:12:59Z",
               "message": "Add project description to README",
               "author": {
@@ -432,6 +442,7 @@
             {
               "__typename": "Commit",
               "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmI5YWI2MGVlNGI4ZjNmYTg0Mjg2NDQ0NjViZGI1YTg4ZDcyZTY1M2E=",
+              "oid": "13f31602f396bc269076ab4d389cfd8ca94b20ba",
               "committedDate": "2019-04-27T12:03:19Z",
               "message": "Initial commit",
               "author": {

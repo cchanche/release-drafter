@@ -147,13 +147,14 @@ You can configure Release Drafter using the following key in your
 You can use any of the following variables in your `template`, `header` and
 `footer`:
 
-| Variable        | Description                                                                                                           |
-| --------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `$CHANGES`      | The markdown list of pull requests that have been merged.                                                             |
-| `$CONTRIBUTORS` | A comma separated list of contributors to this release (pull request authors, commit authors, and commit committers). |
-| `$PREVIOUS_TAG` | The previous releases’s tag.                                                                                          |
-| `$REPOSITORY`   | Current Repository                                                                                                    |
-| `$OWNER`        | Current Repository Owner                                                                                              |
+| Variable                      | Description                                                                                                           |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `$CHANGES`                    | The markdown list of pull requests that have been merged.                                                             |
+| `$INDIVIDUAL_COMMITS_CHANGES` | The markdown list of commits that were not included in a pull-request                                                 |
+| `$CONTRIBUTORS`               | A comma separated list of contributors to this release (pull request authors, commit authors, and commit committers). |
+| `$PREVIOUS_TAG`               | The previous releases’s tag.                                                                                          |
+| `$REPOSITORY`                 | Current Repository                                                                                                    |
+| `$OWNER`                      | Current Repository Owner                                                                                              |
 
 ## Category Template Variables
 

@@ -6,6 +6,7 @@ import { c as context } from "../../../../github.js";
 import { resolveVersionKeyIncrement } from "./resolve-version-increment.js";
 import { c as coreExports } from "../../../../core.js";
 import { getVersionInfo } from "./get-version-info.js";
+import { generateIndividualCommitsChangelog } from "./generate-individual-commits-changelog.js";
 const buildReleasePayload = (params) => {
   const { commits, config, input, lastRelease, pullRequests } = params;
   coreExports.info(`Building release payload and body...`);
@@ -19,6 +20,10 @@ const buildReleasePayload = (params) => {
     object: {
       $PREVIOUS_TAG: lastRelease ? lastRelease.tag_name : "",
       $CHANGES: generateChangeLog({ pullRequests: sortedPullRequests, config }),
+      $INDIVIDUAL_COMMITS_CHANGES: generateIndividualCommitsChangelog(
+        commits,
+        config
+      ),
       $CONTRIBUTORS: generateContributorsSentence({
         commits,
         pullRequests: sortedPullRequests,
