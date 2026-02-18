@@ -4,6 +4,7 @@ import { Config } from './schemas/config.schema'
 import { CommonConfig } from './schemas'
 import { context } from '@actions/github'
 import { stringToRegex } from 'src/common'
+import semver from 'semver'
 
 /**
  * Returns a copy of `config`, updated with values from `input`.
@@ -87,6 +88,18 @@ export const mergeInputAndConfig = (params: {
     config['include-pre-releases'] = true
   }
 
+  if (input['filter-by-range']) {
+    if (
+      config['filter-by-range'] &&
+      config['filter-by-range'] !== input['filter-by-range']
+    ) {
+      core.info(
+        `Input's filter-by-range "${input['filter-by-range']}" overrides config's filter-by-range "${config['filter-by-range']}"`
+      )
+    }
+    config['filter-by-range'] = input['filter-by-range']
+  }
+
   // Write defaults
   const commitish =
     config.commitish || context.ref || (context.payload.ref as string)
@@ -133,6 +146,14 @@ export const mergeInputAndConfig = (params: {
   ) {
     throw new Error(
       'Multiple categories detected with no labels. Only one category with no labels is supported for uncategorized pull requests.'
+    )
+  }
+  if (
+    parsedConfig['filter-by-range'] &&
+    !semver.validRange(parsedConfig['filter-by-range'])
+  ) {
+    throw new Error(
+      `'filter-by-range' value "${parsedConfig['filter-by-range']}" could not be parsed as a valid semver range.`
     )
   }
 

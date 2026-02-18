@@ -3,6 +3,7 @@ import { context } from '@actions/github'
 import * as core from '@actions/core'
 import { sortReleases } from './sort-releases'
 import { type ParsedConfig } from '../../config'
+import semver from 'semver'
 
 // GitHub API currently returns a 500 HTTP response if you attempt to fetch over 1000 releases.
 const RELEASE_COUNT_LIMIT = 1000
@@ -20,14 +21,19 @@ const RELEASE_COUNT_LIMIT = 1000
 export const findPreviousReleases = async (
   params: Pick<
     ParsedConfig,
-    'commitish' | 'filter-by-commitish' | 'include-pre-releases' | 'tag-prefix'
+    | 'commitish'
+    | 'filter-by-commitish'
+    | 'include-pre-releases'
+    | 'tag-prefix'
+    | 'filter-by-range'
   >
 ) => {
   const {
     commitish,
     'filter-by-commitish': filterByCommitish,
     'include-pre-releases': includePreReleases,
-    'tag-prefix': tagPrefix
+    'tag-prefix': tagPrefix,
+    'filter-by-range': filterByRange
   } = params
   const octokit = getOctokit()
 
@@ -60,9 +66,35 @@ export const findPreviousReleases = async (
           targetCommitishName === r.target_commitish.replace(headRefRegex, '')
       )
     : releases
+  const semverRangeFilteredReleases =
+    filterByRange && filterByRange !== '*'
+      ? commitishFilteredReleases.filter((r) => {
+          const parsedRange = semver.validRange(filterByRange)! // ensured by config validation
+          const parsedVersion = semver.coerce(r.tag_name)?.version
+
+          if (!parsedVersion) {
+            core.warning(
+              `Failed to coerce semver version for "${r.tag_name}" : will be excluded from releases considered for drafting.`
+            )
+            return false
+          }
+
+          const satisfies = !!semver.satisfies(parsedVersion, parsedRange)
+
+          core.debug(
+            `Range "${parsedRange}" ${
+              satisfies ? 'satisfies' : 'does not satisfy'
+            } version "${parsedVersion}" `
+          )
+
+          return satisfies
+        })
+      : commitishFilteredReleases
   const filteredReleases = tagPrefix
-    ? commitishFilteredReleases.filter((r) => r.tag_name.startsWith(tagPrefix))
-    : commitishFilteredReleases
+    ? semverRangeFilteredReleases.filter((r) =>
+        r.tag_name.startsWith(tagPrefix)
+      )
+    : semverRangeFilteredReleases
   const sortedSelectedReleases = sortReleases({
     releases: filteredReleases.filter(
       (r) => !r.draft && (!r.prerelease || includePreReleases)

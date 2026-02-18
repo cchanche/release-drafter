@@ -5,7 +5,7 @@ import "../../lexer.js";
 import "path";
 import "fs";
 import { getOctokit } from "../../common/get-octokit.js";
-import "../../index.js";
+import "../../index2.js";
 import "../../common/shared-input.schema.js";
 import { g as getDefaultExportFromCjs } from "../../_commonjsHelpers.js";
 var ignore$1 = { exports: {} };

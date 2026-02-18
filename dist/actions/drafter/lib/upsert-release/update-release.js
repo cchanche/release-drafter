@@ -4,7 +4,7 @@ import "path";
 import "fs";
 import "../../../../core.js";
 import { getOctokit } from "../../../../common/get-octokit.js";
-import "../../../../index.js";
+import "../../../../index2.js";
 import "../../../../common/shared-input.schema.js";
 import { c as context } from "../../../../github.js";
 const updateRelease = async (params) => {

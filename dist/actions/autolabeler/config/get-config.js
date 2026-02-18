@@ -1,7 +1,7 @@
 import { c as coreExports } from "../../../core.js";
 import { configSchema } from "./config.schema.js";
 import { composeConfigGet } from "../../../common/config/index.js";
-import "../../../index.js";
+import "../../../index2.js";
 import { c as context } from "../../../github.js";
 import "../../../lodash.js";
 import "../../../common/shared-input.schema.js";

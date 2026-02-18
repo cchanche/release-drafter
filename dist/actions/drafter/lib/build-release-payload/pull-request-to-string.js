@@ -1,5 +1,5 @@
 import { renderTemplate } from "./render-template.js";
-import { e as escapeStringRegexp } from "../../../../index2.js";
+import { e as escapeStringRegexp } from "../../../../index3.js";
 const pullRequestToString = (params) => params.pullRequests.map((pullRequest) => {
   let pullAuthor = "ghost";
   if (pullRequest.author) {

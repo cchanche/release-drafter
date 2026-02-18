@@ -4,7 +4,7 @@ import "path";
 import "fs";
 import "../../../../core.js";
 import "../../../../github.js";
-import "../../../../index.js";
+import "../../../../index2.js";
 import { sharedInputSchema } from "../../../../common/shared-input.schema.js";
 import { z } from "../../../../external.js";
 import { commonConfigSchema } from "./common-config.schema.js";

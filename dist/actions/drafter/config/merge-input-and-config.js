@@ -7,6 +7,7 @@ import "path";
 import "fs";
 import { stringToRegex } from "../../../common/string-to-regex.js";
 import "../../../common/shared-input.schema.js";
+import { s as semver } from "../../../index.js";
 const mergeInputAndConfig = (params) => {
   const { config: originalConfig, input } = params;
   const config = structuredClone(originalConfig);
@@ -70,6 +71,14 @@ const mergeInputAndConfig = (params) => {
     );
     config["include-pre-releases"] = true;
   }
+  if (input["filter-by-range"]) {
+    if (config["filter-by-range"] && config["filter-by-range"] !== input["filter-by-range"]) {
+      coreExports.info(
+        `Input's filter-by-range "${input["filter-by-range"]}" overrides config's filter-by-range "${config["filter-by-range"]}"`
+      );
+    }
+    config["filter-by-range"] = input["filter-by-range"];
+  }
   const commitish = config.commitish || context.ref || context.payload.ref;
   const latest = !isBoolean(config.latest) ? true : config.latest;
   const prerelease = !isBoolean(config.prerelease) ? false : config.prerelease;
@@ -102,6 +111,11 @@ const mergeInputAndConfig = (params) => {
   if (parsedConfig.categories.filter((category) => category.labels.length === 0).length > 1) {
     throw new Error(
       "Multiple categories detected with no labels. Only one category with no labels is supported for uncategorized pull requests."
+    );
+  }
+  if (parsedConfig["filter-by-range"] && !semver.validRange(parsedConfig["filter-by-range"])) {
+    throw new Error(
+      `'filter-by-range' value "${parsedConfig["filter-by-range"]}" could not be parsed as a valid semver range.`
     );
   }
   return parsedConfig;

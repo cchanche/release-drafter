@@ -28,7 +28,11 @@ const commonConfigSchema = z.object({
   /**
    * A string that would be added after the template body.
    */
-  footer: z.string().optional()
+  footer: z.string().optional(),
+  /**
+   * Filter releases that satisfies this semver range. Evaluates the tag name againts node's semver.satisfies().
+   */
+  "filter-by-range": z.string().optional()
 });
 export {
   commonConfigSchema
