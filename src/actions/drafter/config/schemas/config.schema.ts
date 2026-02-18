@@ -34,6 +34,10 @@ export const exclusiveConfigSchema = z
      */
     'tag-prefix': z.string().optional(),
     /**
+     * A prefix used to exclude release tags from consideration. Tags starting with this prefix are filtered out.
+     */
+    'exclude-tag-prefix': z.string().optional(),
+    /**
      * The template for the tag of the draft release.
      */
     'tag-template': z.string().optional(),

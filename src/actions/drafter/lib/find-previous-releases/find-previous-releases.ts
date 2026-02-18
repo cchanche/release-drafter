@@ -12,6 +12,7 @@ const RELEASE_COUNT_LIMIT = 1000
  * Lists every release and :
  * - filters by commitish if specified
  * - filters by tag-prefix if specified
+ * - excludes by exclude-tag-prefix if specified
  * - filters out pre-releases unless specified
  * - extracts the first draft releases (according to return-order of GitHub API)
  * - get latest published release according to ./sort-releases.ts implementation
@@ -25,6 +26,7 @@ export const findPreviousReleases = async (
     | 'filter-by-commitish'
     | 'include-pre-releases'
     | 'tag-prefix'
+    | 'exclude-tag-prefix'
     | 'filter-by-range'
   >
 ) => {
@@ -33,6 +35,7 @@ export const findPreviousReleases = async (
     'filter-by-commitish': filterByCommitish,
     'include-pre-releases': includePreReleases,
     'tag-prefix': tagPrefix,
+    'exclude-tag-prefix': excludeTagPrefix,
     'filter-by-range': filterByRange
   } = params
   const octokit = getOctokit()
@@ -90,11 +93,16 @@ export const findPreviousReleases = async (
           return satisfies
         })
       : commitishFilteredReleases
-  const filteredReleases = tagPrefix
+  const tagPrefixFilteredReleases = tagPrefix
     ? semverRangeFilteredReleases.filter((r) =>
         r.tag_name.startsWith(tagPrefix)
       )
     : semverRangeFilteredReleases
+  const filteredReleases = excludeTagPrefix
+    ? tagPrefixFilteredReleases.filter(
+        (r) => !r.tag_name.startsWith(excludeTagPrefix)
+      )
+    : tagPrefixFilteredReleases
   const sortedSelectedReleases = sortReleases({
     releases: filteredReleases.filter(
       (r) => !r.draft && (!r.prerelease || includePreReleases)

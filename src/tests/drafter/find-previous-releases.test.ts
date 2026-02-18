@@ -44,6 +44,7 @@ describe('find previous releases', () => {
       commitish: 'refs/heads/master',
       'filter-by-commitish': false,
       'tag-prefix': 'test-',
+      'exclude-tag-prefix': '',
       'include-pre-releases': false
     })
 
@@ -61,6 +62,7 @@ describe('find previous releases', () => {
       commitish: 'refs/heads/master',
       'filter-by-commitish': false,
       'tag-prefix': '',
+      'exclude-tag-prefix': '',
       'include-pre-releases': false
     })
 
@@ -82,6 +84,7 @@ describe('find previous releases', () => {
       commitish: 'refs/heads/master',
       'filter-by-commitish': false,
       'tag-prefix': '',
+      'exclude-tag-prefix': '',
       'include-pre-releases': false
     })
 
@@ -102,7 +105,7 @@ describe('find previous releases', () => {
     const { draftRelease, lastRelease } = await findPreviousReleases({
       commitish: 'refs/heads/master',
       'filter-by-commitish': false,
-      'tag-prefix': '',
+      'exclude-tag-prefix': '',
       'include-pre-releases': true
     })
 
@@ -117,5 +120,41 @@ describe('find previous releases', () => {
       draft: false,
       prerelease: false
     })
+  })
+
+  it('should exclude releases with exclude-tag-prefix', async () => {
+    mocks.releases.mockResolvedValueOnce([
+      {
+        tag_name: 'v1.0.0',
+        target_commitish: 'master',
+        created_at: '2021-06-29T05:45:15Z',
+        draft: false,
+        prerelease: false
+      },
+      {
+        tag_name: 'v1.0.1',
+        target_commitish: 'master',
+        created_at: '2022-06-29T05:45:15Z',
+        draft: false,
+        prerelease: false
+      },
+      {
+        tag_name: 'experimental-v1.0.2',
+        target_commitish: 'master',
+        created_at: '2023-06-29T05:45:15Z',
+        draft: false,
+        prerelease: false
+      }
+    ])
+
+    const { lastRelease } = await findPreviousReleases({
+      commitish: 'refs/heads/master',
+      'filter-by-commitish': false,
+      'tag-prefix': '',
+      'exclude-tag-prefix': 'experimental-',
+      'include-pre-releases': false
+    })
+
+    expect(lastRelease?.tag_name).toEqual('v1.0.1')
   })
 })

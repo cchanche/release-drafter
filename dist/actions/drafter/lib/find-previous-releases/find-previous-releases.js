@@ -16,6 +16,7 @@ const findPreviousReleases = async (params) => {
     "filter-by-commitish": filterByCommitish,
     "include-pre-releases": includePreReleases,
     "tag-prefix": tagPrefix,
+    "exclude-tag-prefix": excludeTagPrefix,
     "filter-by-range": filterByRange
   } = params;
   const octokit = getOctokit();
@@ -56,9 +57,12 @@ const findPreviousReleases = async (params) => {
     );
     return satisfies;
   }) : commitishFilteredReleases;
-  const filteredReleases = tagPrefix ? semverRangeFilteredReleases.filter(
+  const tagPrefixFilteredReleases = tagPrefix ? semverRangeFilteredReleases.filter(
     (r) => r.tag_name.startsWith(tagPrefix)
   ) : semverRangeFilteredReleases;
+  const filteredReleases = excludeTagPrefix ? tagPrefixFilteredReleases.filter(
+    (r) => !r.tag_name.startsWith(excludeTagPrefix)
+  ) : tagPrefixFilteredReleases;
   const sortedSelectedReleases = sortReleases({
     releases: filteredReleases.filter(
       (r) => !r.draft && (!r.prerelease || includePreReleases)
