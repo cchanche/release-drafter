@@ -1,2 +1,11 @@
 _extends: cchanche/release-drafter:.github/release-drafter.yml
 include-pre-releases: true # consider only prereleases when looking for previous releases
+template: |
+  > [!note]
+  > Included changes may break existing functionality. Use with caution.
+
+  # What's Changed since `$PREVIOUS_TAG`
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
