@@ -1,0 +1,2 @@
+_extends: cchanche/release-drafter:.github/release-drafter.yml
+include-pre-releases: true # consider only prereleases when looking for previous releases

@@ -1,4 +1,4 @@
-name: Release Drafter - draft
+name: Release Drafter - prerelease
 
 on:
   push:
@@ -6,12 +6,14 @@ on:
       - master
 
 jobs:
-  update_release_draft:
+  update_release_prerelease:
     runs-on: ubuntu-latest
     steps:
       - uses: release-drafter/release-drafter@master
         with:
-          prerelease: false # the default
-          publish: false # the default
+          config-name: release-drafter.prerelease.yml
+          prerelease-identifier: rc
+          prerelease: true
+          publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
