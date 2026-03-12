@@ -173,7 +173,8 @@
     },
     "commitish": { "type": "string" },
     "header": { "type": "string" },
-    "footer": { "type": "string" }
+    "footer": { "type": "string" },
+    "filter-by-range": { "type": "string" }
   },
   "required": [
     "change-template",

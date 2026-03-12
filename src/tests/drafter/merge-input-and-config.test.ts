@@ -403,6 +403,19 @@ describe('mergeInputAndConfig', () => {
         `[Error: Multiple categories detected with no labels. Only one category with no labels is supported for uncategorized pull requests.]`
       )
     })
+    it('should throw error when filter-by-range is invalid', async () => {
+      const config = configSchema.parse({
+        template: '$CHANGES',
+        'filter-by-range': 'not-a-range'
+      })
+      const input = commonConfigSchema.parse({})
+
+      expect(() =>
+        mergeInputAndConfig({ config, input })
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[Error: 'filter-by-range' value "not-a-range" could not be parsed as a valid semver range.]`
+      )
+    })
   })
 
   describe('complex scenarios', () => {

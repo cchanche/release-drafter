@@ -8,7 +8,8 @@ export const getActionInput = (): ActionInput => {
 
   // Boolean inputs are handled by zod's stringBool() during parsing.
 
-  return actionInputSchema.parse({
+  // Make sure we don't miss any inputs from the schema
+  const actionInput: Record<keyof ActionInput, ReturnType<typeof getInput>> = {
     // exclusive to action input
     'config-name': getInput('config-name'),
     name: getInput('name'),
@@ -26,6 +27,9 @@ export const getActionInput = (): ActionInput => {
     commitish: getInput('commitish'),
     header: getInput('header'),
     footer: getInput('footer'),
-    'dry-run': getInput('dry-run')
-  })
+    'dry-run': getInput('dry-run'),
+    'filter-by-range': getInput('filter-by-range')
+  }
+
+  return actionInputSchema.parse(actionInput)
 }
