@@ -1,4 +1,4 @@
-import { C as warning, S as setOutput, T as __toESM, _ as debug, a as boolean, b as info, c as string, d as paginateGraphql, f as stringToRegex, g as context, h as getOctokit, i as array, l as stringbool, m as composeConfigGet, n as ZodDefault, o as number, p as escapeStringRegexp, r as _enum, s as object, t as sharedInputSchema, u as datetime, v as error, w as __commonJSMin, x as setFailed, y as getInput } from "../../chunks/common.js";
+import { C as setOutput, E as __toESM, S as setFailed, T as __commonJSMin, _ as context, a as array, b as getInput, c as object, d as datetime, f as paginateGraphql, g as getOctokit, h as composeConfigGet, i as _enum, l as string, m as escapeStringRegexp, n as sharedInputSchema, o as boolean, p as stringToRegex, r as ZodDefault, s as number, t as groupBy, u as stringbool, v as debug, w as warning, x as info, y as error } from "../../chunks/common.js";
 //#region node_modules/compare-versions/index.mjs
 function compareVersions(v1, v2) {
 	const n1 = validateAndParse(v1);
@@ -1009,7 +1009,7 @@ var findPreviousReleases = async (params) => {
 };
 //#endregion
 //#region src/actions/drafter/lib/find-pull-requests/graphql/find-commits-with-path-changes.gql?raw
-var find_commits_with_path_changes_default = "query findCommitsWithPathChangesQuery(\n  $name: String!\n  $owner: String!\n  $targetCommitish: String!\n  $since: GitTimestamp\n  $after: String\n  $path: String\n) {\n  repository(name: $name, owner: $owner) {\n    object(expression: $targetCommitish) {\n      ... on Commit {\n        __typename\n        history(path: $path, since: $since, after: $after) {\n          __typename\n          pageInfo {\n            __typename\n            hasNextPage\n            endCursor\n          }\n          nodes {\n            __typename\n            id\n          }\n        }\n      }\n    }\n  }\n}\n";
+var find_commits_with_path_changes_default = "query findCommitsWithPathChangesQuery(\n  $name: String!\n  $owner: String!\n  $targetCommitish: String!\n  $since: GitTimestamp\n  $after: String\n  $path: String\n) {\n  repository(name: $name, owner: $owner) {\n    object(expression: $targetCommitish) {\n      ... on Commit {\n        __typename\n        history(path: $path, since: $since, after: $after) {\n          __typename\n          pageInfo {\n            __typename\n            hasNextPage\n            endCursor\n          }\n          nodes {\n            __typename\n            id\n            oid\n          }\n        }\n      }\n    }\n  }\n}\n";
 //#endregion
 //#region src/actions/drafter/lib/find-pull-requests/find-commits-with-path-change.ts
 /**
@@ -1043,7 +1043,7 @@ var findCommitsWithPathChange = async (paths, params) => {
 };
 //#endregion
 //#region src/actions/drafter/lib/find-pull-requests/graphql/find-commits-with-pr.gql?raw
-var find_commits_with_pr_default = "query findCommitsWithAssociatedPullRequests(\n  $name: String!\n  $owner: String!\n  $targetCommitish: String!\n  $withPullRequestBody: Boolean!\n  $withPullRequestURL: Boolean!\n  $since: GitTimestamp\n  $after: String\n  $withBaseRefName: Boolean!\n  $withHeadRefName: Boolean!\n  $pullRequestLimit: Int!\n  $historyLimit: Int!\n) {\n  repository(name: $name, owner: $owner) {\n    object(expression: $targetCommitish) {\n      ... on Commit {\n        __typename\n        history(first: $historyLimit, since: $since, after: $after) {\n          __typename\n          totalCount\n          pageInfo {\n            __typename\n            hasNextPage\n            endCursor\n          }\n          nodes {\n            __typename\n            id\n            committedDate\n            message\n            author {\n              __typename\n              name\n              user {\n                __typename\n                login\n              }\n            }\n            associatedPullRequests(first: $pullRequestLimit) {\n              __typename\n              nodes {\n                __typename\n                title\n                number\n                url @include(if: $withPullRequestURL)\n                body @include(if: $withPullRequestBody)\n                author {\n                  __typename\n                  login\n                  url\n                }\n                baseRepository {\n                  __typename\n                  nameWithOwner\n                }\n                mergedAt\n                isCrossRepository\n                labels(first: 100) {\n                  __typename\n                  nodes {\n                    __typename\n                    name\n                  }\n                }\n                merged\n                baseRefName @include(if: $withBaseRefName)\n                headRefName @include(if: $withHeadRefName)\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n";
+var find_commits_with_pr_default = "query findCommitsWithAssociatedPullRequests(\n  $name: String!\n  $owner: String!\n  $targetCommitish: String!\n  $withPullRequestBody: Boolean!\n  $withPullRequestURL: Boolean!\n  $since: GitTimestamp\n  $after: String\n  $withBaseRefName: Boolean!\n  $withHeadRefName: Boolean!\n  $pullRequestLimit: Int!\n  $historyLimit: Int!\n) {\n  repository(name: $name, owner: $owner) {\n    object(expression: $targetCommitish) {\n      ... on Commit {\n        __typename\n        history(first: $historyLimit, since: $since, after: $after) {\n          __typename\n          totalCount\n          pageInfo {\n            __typename\n            hasNextPage\n            endCursor\n          }\n          nodes {\n            __typename\n            id\n            oid\n            committedDate\n            message\n            author {\n              __typename\n              name\n              user {\n                __typename\n                login\n              }\n            }\n            associatedPullRequests(first: $pullRequestLimit) {\n              __typename\n              nodes {\n                __typename\n                title\n                number\n                url @include(if: $withPullRequestURL)\n                body @include(if: $withPullRequestBody)\n                author {\n                  __typename\n                  login\n                  url\n                }\n                baseRepository {\n                  __typename\n                  nameWithOwner\n                }\n                mergedAt\n                isCrossRepository\n                labels(first: 100) {\n                  __typename\n                  nodes {\n                    __typename\n                    name\n                  }\n                }\n                merged\n                baseRefName @include(if: $withBaseRefName)\n                headRefName @include(if: $withHeadRefName)\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n";
 //#endregion
 //#region src/actions/drafter/lib/find-pull-requests/find-commits-with-pr.ts
 var findCommitsWithPr = async (params) => {
@@ -1497,6 +1497,426 @@ var getVersionInfo = (params) => {
 	};
 };
 //#endregion
+//#region node_modules/conventional-commits-parser/dist/regex.js
+var nomatchRegex = /(?!.*)/;
+function escape(string) {
+	return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function join(parts, joiner) {
+	return parts.map((val) => escape(val.trim())).filter(Boolean).join(joiner);
+}
+function getNotesRegex(noteKeywords, notesPattern) {
+	if (!noteKeywords) return nomatchRegex;
+	const noteKeywordsSelection = join(noteKeywords, "|");
+	if (!notesPattern) return new RegExp(`^[\\s|*]*(${noteKeywordsSelection})[:\\s]+(.*)`, "i");
+	return notesPattern(noteKeywordsSelection);
+}
+function getReferencePartsRegex(issuePrefixes, issuePrefixesCaseSensitive) {
+	if (!issuePrefixes) return nomatchRegex;
+	const flags = issuePrefixesCaseSensitive ? "g" : "gi";
+	return new RegExp(`(?:.*?)??\\s*([\\w-\\.\\/]*?)??(${join(issuePrefixes, "|")})([\\w-]+)(?=\\s|$|[,;)\\]])`, flags);
+}
+function getReferencesRegex(referenceActions) {
+	if (!referenceActions) return /()(.+)/gi;
+	const joinedKeywords = join(referenceActions, "|");
+	return new RegExp(`(${joinedKeywords})(?:\\s+(.*?))(?=(?:${joinedKeywords})|$)`, "gi");
+}
+/**
+* Make the regexes used to parse a commit.
+* @param options
+* @returns Regexes.
+*/
+function getParserRegexes(options = {}) {
+	return {
+		notes: getNotesRegex(options.noteKeywords, options.notesPattern),
+		referenceParts: getReferencePartsRegex(options.issuePrefixes, options.issuePrefixesCaseSensitive),
+		references: getReferencesRegex(options.referenceActions),
+		mentions: /@([\w-]+)/g,
+		url: /\b(?:https?):\/\/(?:www\.)?([-a-zA-Z0-9@:%_+.~#?&//=])+\b/
+	};
+}
+//#endregion
+//#region node_modules/conventional-commits-parser/dist/utils.js
+var SCISSOR = "------------------------ >8 ------------------------";
+/**
+* Remove leading and trailing newlines.
+* @param input
+* @returns String without leading and trailing newlines.
+*/
+function trimNewLines(input) {
+	const matches = input.match(/[^\r\n]/);
+	if (typeof matches?.index !== "number") return "";
+	const firstIndex = matches.index;
+	let lastIndex = input.length - 1;
+	while (input[lastIndex] === "\r" || input[lastIndex] === "\n") lastIndex--;
+	return input.substring(firstIndex, lastIndex + 1);
+}
+/**
+* Append a newline to a string.
+* @param src
+* @param line
+* @returns String with appended newline.
+*/
+function appendLine(src, line) {
+	return src ? `${src}\n${line || ""}` : line || "";
+}
+/**
+* Creates a function that filters out comments lines.
+* @param char
+* @returns Comment filter function.
+*/
+function getCommentFilter(char) {
+	return char ? (line) => !line.startsWith(char) : () => true;
+}
+/**
+* Select lines before the scissor.
+* @param lines
+* @param commentChar
+* @returns Lines before the scissor.
+*/
+function truncateToScissor(lines, commentChar) {
+	const scissorIndex = lines.indexOf(`${commentChar} ${SCISSOR}`);
+	if (scissorIndex === -1) return lines;
+	return lines.slice(0, scissorIndex);
+}
+/**
+* Filter out GPG sign lines.
+* @param line
+* @returns True if the line is not a GPG sign line.
+*/
+function gpgFilter(line) {
+	return !line.match(/^\s*gpg:/);
+}
+/**
+* Assign matched correspondence to the target object.
+* @param target - The target object to assign values to.
+* @param matches - The RegExp match array containing the matched groups.
+* @param correspondence - An array of keys that correspond to the matched groups.
+* @returns The target object with assigned values.
+*/
+function assignMatchedCorrespondence(target, matches, correspondence) {
+	const { groups } = matches;
+	for (let i = 0, len = correspondence.length, key; i < len; i++) {
+		key = correspondence[i];
+		target[key] = (groups ? groups[key] : matches[i + 1]) || null;
+	}
+	return target;
+}
+//#endregion
+//#region node_modules/conventional-commits-parser/dist/options.js
+var defaultOptions = {
+	noteKeywords: ["BREAKING CHANGE", "BREAKING-CHANGE"],
+	issuePrefixes: ["#"],
+	referenceActions: [
+		"close",
+		"closes",
+		"closed",
+		"fix",
+		"fixes",
+		"fixed",
+		"resolve",
+		"resolves",
+		"resolved"
+	],
+	headerPattern: /^(\w*)(?:\(([\w$@.\-*/ ]*)\))?: (.*)$/,
+	headerCorrespondence: [
+		"type",
+		"scope",
+		"subject"
+	],
+	revertPattern: /^Revert\s"([\s\S]*)"\s*This reverts commit (\w*)\.?/,
+	revertCorrespondence: ["header", "hash"],
+	fieldPattern: /^-(.*?)-$/
+};
+//#endregion
+//#region node_modules/conventional-commits-parser/dist/CommitParser.js
+/**
+* Helper to create commit object.
+* @param initialData - Initial commit data.
+* @returns Commit object with empty data.
+*/
+function createCommitObject(initialData = {}) {
+	return {
+		merge: null,
+		revert: null,
+		header: null,
+		body: null,
+		footer: null,
+		notes: [],
+		mentions: [],
+		references: [],
+		...initialData
+	};
+}
+/**
+* Commit message parser.
+*/
+var CommitParser = class {
+	options;
+	regexes;
+	lines = [];
+	lineIndex = 0;
+	commit = createCommitObject();
+	constructor(options = {}) {
+		this.options = {
+			...defaultOptions,
+			...options
+		};
+		this.regexes = getParserRegexes(this.options);
+	}
+	currentLine() {
+		return this.lines[this.lineIndex];
+	}
+	nextLine() {
+		return this.lines[this.lineIndex++];
+	}
+	isLineAvailable() {
+		return this.lineIndex < this.lines.length;
+	}
+	parseReference(input, action) {
+		const { regexes } = this;
+		if (regexes.url.test(input)) return null;
+		const matches = regexes.referenceParts.exec(input);
+		if (!matches) return null;
+		let [raw, repository = null, prefix, issue] = matches;
+		let owner = null;
+		if (repository) {
+			const slashIndex = repository.indexOf("/");
+			if (slashIndex !== -1) {
+				owner = repository.slice(0, slashIndex);
+				repository = repository.slice(slashIndex + 1);
+			}
+		}
+		return {
+			raw,
+			action,
+			owner,
+			repository,
+			prefix,
+			issue
+		};
+	}
+	parseReferences(input) {
+		const { regexes } = this;
+		const regex = input.match(regexes.references) ? regexes.references : /()(.+)/gi;
+		const references = [];
+		let matches;
+		let action;
+		let sentence;
+		let reference;
+		while (true) {
+			matches = regex.exec(input);
+			if (!matches) break;
+			action = matches[1] || null;
+			sentence = matches[2] || "";
+			while (true) {
+				reference = this.parseReference(sentence, action);
+				if (!reference) break;
+				references.push(reference);
+			}
+		}
+		return references;
+	}
+	skipEmptyLines() {
+		let line = this.currentLine();
+		while (line !== void 0 && !line.trim()) {
+			this.nextLine();
+			line = this.currentLine();
+		}
+	}
+	parseMerge() {
+		const { commit, options } = this;
+		const correspondence = options.mergeCorrespondence || [];
+		const merge = this.currentLine();
+		const matches = merge && options.mergePattern ? merge.match(options.mergePattern) : null;
+		if (matches) {
+			this.nextLine();
+			commit.merge = matches[0] || null;
+			assignMatchedCorrespondence(commit, matches, correspondence);
+			return true;
+		}
+		return false;
+	}
+	parseHeader(isMergeCommit) {
+		if (isMergeCommit) this.skipEmptyLines();
+		const { commit, options } = this;
+		const correspondence = options.headerCorrespondence || [];
+		const header = commit.header ?? this.nextLine();
+		let matches = null;
+		if (header) {
+			if (options.breakingHeaderPattern) matches = header.match(options.breakingHeaderPattern);
+			if (!matches && options.headerPattern) matches = header.match(options.headerPattern);
+		}
+		if (header) commit.header = header;
+		if (matches) assignMatchedCorrespondence(commit, matches, correspondence);
+	}
+	parseMeta() {
+		const { options, commit } = this;
+		if (!options.fieldPattern || !this.isLineAvailable()) return false;
+		let matches;
+		let field = null;
+		let parsed = false;
+		while (this.isLineAvailable()) {
+			matches = this.currentLine().match(options.fieldPattern);
+			if (matches) {
+				field = matches[1] || null;
+				this.nextLine();
+				continue;
+			}
+			if (field) {
+				parsed = true;
+				commit[field] = appendLine(commit[field], this.currentLine());
+				this.nextLine();
+			} else break;
+		}
+		return parsed;
+	}
+	parseNotes() {
+		const { regexes, commit } = this;
+		if (!this.isLineAvailable()) return false;
+		const matches = this.currentLine().match(regexes.notes);
+		let references = [];
+		if (matches) {
+			const note = {
+				title: matches[1],
+				text: matches[2]
+			};
+			commit.notes.push(note);
+			commit.footer = appendLine(commit.footer, this.currentLine());
+			this.nextLine();
+			while (this.isLineAvailable()) {
+				if (this.parseMeta()) return true;
+				if (this.parseNotes()) return true;
+				references = this.parseReferences(this.currentLine());
+				if (references.length) commit.references.push(...references);
+				else note.text = appendLine(note.text, this.currentLine());
+				commit.footer = appendLine(commit.footer, this.currentLine());
+				this.nextLine();
+				if (references.length) break;
+			}
+			return true;
+		}
+		return false;
+	}
+	parseBodyAndFooter(isBody) {
+		const { commit } = this;
+		if (!this.isLineAvailable()) return isBody;
+		const references = this.parseReferences(this.currentLine());
+		const isStillBody = !references.length && isBody;
+		if (isStillBody) commit.body = appendLine(commit.body, this.currentLine());
+		else {
+			commit.references.push(...references);
+			commit.footer = appendLine(commit.footer, this.currentLine());
+		}
+		this.nextLine();
+		return isStillBody;
+	}
+	parseBreakingHeader() {
+		const { commit, options } = this;
+		if (!options.breakingHeaderPattern || commit.notes.length || !commit.header) return;
+		const matches = commit.header.match(options.breakingHeaderPattern);
+		if (matches) commit.notes.push({
+			title: "BREAKING CHANGE",
+			text: matches[3]
+		});
+	}
+	parseMentions(input) {
+		const { commit, regexes } = this;
+		let matches;
+		for (;;) {
+			matches = regexes.mentions.exec(input);
+			if (!matches) break;
+			commit.mentions.push(matches[1]);
+		}
+	}
+	parseRevert(input) {
+		const { commit, options } = this;
+		const correspondence = options.revertCorrespondence || [];
+		const matches = options.revertPattern ? input.match(options.revertPattern) : null;
+		if (matches) commit.revert = assignMatchedCorrespondence({}, matches, correspondence);
+	}
+	cleanupCommit() {
+		const { commit } = this;
+		if (commit.body) commit.body = trimNewLines(commit.body);
+		if (commit.footer) commit.footer = trimNewLines(commit.footer);
+		commit.notes.forEach((note) => {
+			note.text = trimNewLines(note.text);
+		});
+		const referencesSet = /* @__PURE__ */ new Set();
+		commit.references = commit.references.filter((reference) => {
+			const uid = `${reference.action} ${reference.raw}`.toLocaleLowerCase();
+			const ok = !referencesSet.has(uid);
+			if (ok) referencesSet.add(uid);
+			return ok;
+		});
+	}
+	/**
+	* Parse commit message string into an object.
+	* @param input - Commit message string.
+	* @returns Commit object.
+	*/
+	parse(input) {
+		if (!input.trim()) throw new TypeError("Expected a raw commit");
+		const { commentChar } = this.options;
+		const commentFilter = getCommentFilter(commentChar);
+		const rawLines = trimNewLines(input).split(/\r?\n/);
+		const lines = commentChar ? truncateToScissor(rawLines, commentChar).filter((line) => commentFilter(line) && gpgFilter(line)) : rawLines.filter((line) => gpgFilter(line));
+		const commit = createCommitObject();
+		this.lines = lines;
+		this.lineIndex = 0;
+		this.commit = commit;
+		const isMergeCommit = this.parseMerge();
+		this.parseHeader(isMergeCommit);
+		if (commit.header) commit.references = this.parseReferences(commit.header);
+		let isBody = true;
+		while (this.isLineAvailable()) {
+			this.parseMeta();
+			if (this.parseNotes()) isBody = false;
+			if (!this.parseBodyAndFooter(isBody)) isBody = false;
+		}
+		this.parseBreakingHeader();
+		this.parseMentions(input);
+		this.parseRevert(input);
+		this.cleanupCommit();
+		return commit;
+	}
+};
+//#endregion
+//#region src/actions/drafter/lib/build-release-payload/generate-individual-commits-changelog.ts
+var generateIndividualCommitsChangelog = (commits, config) => {
+	const { owner, repo } = context.repo;
+	const commitsWithoutPullRequests = commits.filter((c) => !c.associatedPullRequests?.nodes?.length);
+	if (commitsWithoutPullRequests.length > 0) {
+		const parser = new CommitParser({});
+		const augmentedCommits = commitsWithoutPullRequests.map((c) => {
+			return {
+				...c,
+				parsed: c.message ? parser.parse(c.message) : void 0
+			};
+		});
+		const writeCommit = (c) => `-${c.parsed?.scope ? ` **${c.parsed?.scope}:**` : ""}${` ${c.parsed?.subject || c.parsed?.header || c.message || "empty message"}`}${c.author?.user?.login ? ` @${c.author.user.login}` : ""}${c?.oid && repo && owner ? ` ([${c.oid.slice(0, 7)}](https://github.com/${owner}/${repo}/commit/${c.oid}))` : ""}`;
+		return Object.entries(groupBy(augmentedCommits, (c) => {
+			switch (c?.parsed?.type) {
+				case "feat": return "🚀 Features";
+				case "docs": return "📗 Documentation";
+				case "fix": return "🐛 Bug fixes";
+				case "build": return "⚙️ Build system";
+				case "test": return "🧪 Tests";
+				case "perf": return "⚡️ Performance";
+				case "refactor": return "♻️ Refactor";
+				case "ci": return "🚦 CI / CD";
+				case "chore":
+				case "revert": return "🧰 Maintenance";
+				case "style": return "🎨 Style";
+				case void 0:
+				case null:
+				case "": return "🧐 Uncategorized";
+				default: return c.parsed?.type;
+			}
+		})).map(([type, commitsForType]) => `### ${type}\n${commitsForType.map((c) => writeCommit(c)).join("\n")}`).join("\n\n");
+	} else return config["no-changes-template"];
+};
+//#endregion
 //#region src/actions/drafter/lib/build-release-payload/build-release-payload.ts
 /**
 * Outputs the payload for creating or updating a release.
@@ -1519,6 +1939,7 @@ var buildReleasePayload = (params) => {
 				pullRequests: sortedPullRequests,
 				config
 			}),
+			$INDIVIDUAL_COMMITS_CHANGES: generateIndividualCommitsChangelog(commits, config),
 			$CONTRIBUTORS: generateContributorsSentence({
 				commits,
 				pullRequests: sortedPullRequests,

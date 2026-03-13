@@ -30854,4 +30854,12 @@ var sharedInputSchema = object({
 	});
 });
 //#endregion
-export { warning as C, setOutput as S, __toESM as T, debug as _, boolean as a, info as b, string as c, paginateGraphql as d, stringToRegex as f, context as g, getOctokit as h, array as i, stringbool as l, composeConfigGet as m, ZodDefault as n, number as o, escapeStringRegexp as p, _enum as r, object as s, sharedInputSchema as t, datetime as u, error as v, __commonJSMin as w, setFailed as x, getInput as y };
+//#region src/common/group-by.ts
+var groupBy = (collection, iteratee) => collection.reduce((result, value) => {
+	const key = String(iteratee(value));
+	if (!result[key]) result[key] = [];
+	result[key].push(value);
+	return result;
+}, {});
+//#endregion
+export { setOutput as C, __toESM as E, setFailed as S, __commonJSMin as T, context as _, array as a, getInput as b, object as c, datetime as d, paginateGraphql as f, getOctokit as g, composeConfigGet as h, _enum as i, string as l, escapeStringRegexp as m, sharedInputSchema as n, boolean as o, stringToRegex as p, ZodDefault as r, number as s, groupBy as t, stringbool as u, debug as v, warning as w, info as x, error as y };

@@ -20,6 +20,7 @@ query findCommitsWithPathChangesQuery(
           nodes {
             __typename
             id
+            oid
           }
         }
       }

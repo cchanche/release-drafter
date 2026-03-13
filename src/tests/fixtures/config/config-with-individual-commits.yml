@@ -1,0 +1,9 @@
+template: |
+  Changes:
+  $CHANGES
+
+  Previous tag: '$PREVIOUS_TAG'
+
+  Individual commits:
+
+  $INDIVIDUAL_COMMITS_CHANGES
