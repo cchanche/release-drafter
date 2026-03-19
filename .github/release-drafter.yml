@@ -1,42 +1,61 @@
-name-template: 'v$RESOLVED_VERSION'
-tag-template: 'v$RESOLVED_VERSION'
-template: |
-  # What's Changed
-
-  $CHANGES
-
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
-
+name-template: v$RESOLVED_VERSION
+tag-template: $RESOLVED_VERSION
+exclude-contributors:
+- github-actions
 categories:
-  - title: 'Breaking'
-    label: 'type: breaking'
-  - title: 'New'
-    label: 'type: feature'
-  - title: 'Bug Fixes'
-    label: 'type: bug'
-  - title: 'Maintenance'
-    label: 'type: maintenance'
-  - title: 'Documentation'
-    label: 'type: docs'
-  - title: 'Other changes'
-  - title: 'Dependency Updates'
-    label: 'type: dependencies'
-    collapse-after: 5
-
+- title: New features
+  labels:
+  - enhancement
+- title: Bug fixes
+  labels:
+  - bug
+- title: Documentation
+  labels:
+  - docs
+- title: Other changes
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: \<*_&
 version-resolver:
   major:
     labels:
-      - 'type: breaking'
+    - breaking-change
   minor:
     labels:
-      - 'type: feature'
+    - enhancement
   patch:
     labels:
-      - 'type: bug'
-      - 'type: maintenance'
-      - 'type: docs'
-      - 'type: dependencies'
-      - 'type: security'
+    - bug
+    - dependencies
+  default: patch
+template: |
+  ## Changes since v$PREVIOUS_TAG
 
-exclude-labels:
-  - 'skip-changelog'
+  $CHANGES
+
+replacers:
+- search: /@(renovate|dependabot(?:\[bot\])?)(?:,| |$)/gm
+  replace: ''
+
+autolabeler:
+- label: docs
+  files:
+  - '*.md'
+  title:
+  - /docs/i
+  branch:
+  - /docs{0,1}\/.+/
+- label: bug
+  branch:
+  - /fix\/.+/
+  title:
+  - /fix/i
+- label: enhancement
+  title:
+  - /feat(\(.*\))?:/i
+  branch:
+  - /feat\/.+/
+- label: breaking-change
+  title:
+  - /feat(\(.*\))?\!/i
+  body:
+  - /BREAKING-CHANGE/i

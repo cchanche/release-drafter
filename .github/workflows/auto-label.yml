@@ -1,0 +1,21 @@
+# .github/workflows/auto-label.yml
+name: Auto Label
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    types:
+    - opened
+    - reopened
+    - synchronize
+
+permissions:
+  contents: read
+
+jobs:
+  auto_label:
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: release-drafter/release-drafter/autolabeler@139054aeaa9adc52ab36ddf67437541f039b88e2  # v7.1.1
