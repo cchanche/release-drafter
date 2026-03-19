@@ -1,0 +1,33 @@
+name: Release Drafter
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches:
+    - main
+
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      publish:
+        required: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: release-drafter/release-drafter@139054aeaa9adc52ab36ddf67437541f039b88e2  # v7.1.1
+      with:
+        config-name: release-drafter.yml
+        tag: ${{ inputs.tag }}
+        version: ${{ inputs.version }}
+        publish: ${{ inputs.publish }}
