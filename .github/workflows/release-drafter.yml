@@ -25,7 +25,8 @@ jobs:
   update_release_draft:
     runs-on: ubuntu-24.04
     steps:
-    - uses: cchanche/release-drafter@master
+    - uses: cchanche/release-drafter@master 
+      with:
         config-name: release-drafter.yml
         tag: ${{ inputs.tag }}
         version: ${{ inputs.version }}
