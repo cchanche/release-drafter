@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import { getGitHubTokenInfo } from 'src/common'
 import {
   getActionInput,
   getConfig,
@@ -20,6 +21,8 @@ export async function run(): Promise<void> {
       config: await getConfig(input['config-name']),
       input,
     })
+
+    await getGitHubTokenInfo(input.token)
 
     const { upsertedRelease, releasePayload } = await main({ input, config })
 

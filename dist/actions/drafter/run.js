@@ -1,4 +1,4 @@
-import { C as warning, S as setOutput, T as __toESM, _ as debug, a as _enum, b as info, c as number, d as stringbool, f as datetime, g as context, h as getOctokit, i as ZodDefault, l as object, m as composeConfigGet, n as escapeStringRegexp, o as array, p as paginateGraphql, r as sharedInputSchema, s as boolean, t as stringToRegex, u as string, v as error, w as __commonJSMin, x as setFailed, y as getInput } from "../../chunks/common.js";
+import { C as setOutput, E as __toESM, S as setFailed, T as __commonJSMin, _ as context, a as _enum, b as getInput, c as number, d as stringbool, f as datetime, g as getOctokit, h as composeConfigGet, i as ZodDefault, l as object, m as paginateGraphql, n as escapeStringRegexp, o as array, p as getGitHubTokenInfo, r as sharedInputSchema, s as boolean, t as stringToRegex, u as string, v as debug, w as warning, x as info, y as error } from "../../chunks/common.js";
 //#region src/actions/drafter/config/schemas/common-config.schema.ts
 /**
 * Configuration parameters that can be specified in both
@@ -2246,12 +2246,14 @@ async function run() {
 	try {
 		info("Parsing inputs and configuration...");
 		const input = getActionInput();
+		const config = mergeInputAndConfig({
+			config: await getConfig(input["config-name"]),
+			input
+		});
+		await getGitHubTokenInfo(input.token);
 		const { upsertedRelease, releasePayload } = await main({
 			input,
-			config: mergeInputAndConfig({
-				config: await getConfig(input["config-name"]),
-				input
-			})
+			config
 		});
 		setActionOutput({
 			upsertedRelease,

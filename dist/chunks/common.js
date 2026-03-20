@@ -26941,9 +26941,9 @@ var getConfigFiles = async (configFilename, currentContext) => {
 		extendsDepth++;
 		debug(`getConfigFiles: Processing _extends depth ${extendsDepth}: ${lastExtends}`);
 		if (extendsDepth > MAX_EXTENDS_DEPTH) {
-			const error$1 = `Maximum extends depth (${MAX_EXTENDS_DEPTH}) exceeded. Check for circular dependencies or reduce the chain of extended configurations.`;
-			error(`getConfigFiles: ${error$1}`);
-			throw new Error(error$1);
+			const error$2 = `Maximum extends depth (${MAX_EXTENDS_DEPTH}) exceeded. Check for circular dependencies or reduce the chain of extended configurations.`;
+			error(`getConfigFiles: ${error$2}`);
+			throw new Error(error$2);
 		}
 		configTarget = parseConfigTarget(lastExtends, lastFetchedFrom);
 		debug(`getConfigFiles: Parsed _extends target - scheme: ${configTarget.scheme}, filepath: ${configTarget.filepath}`);
@@ -27061,6 +27061,25 @@ async function paginateGraphql(client, query, requestParameters, paginatePath) {
 	}
 	debug(`[paginateGraphql] Pagination complete. Total pages: ${pageCount}`);
 	return data;
+}
+//#endregion
+//#region src/common/print-token-scopes.ts
+async function getGitHubTokenInfo(token) {
+	try {
+		const response = await fetch("https://api.github.com/user", {
+			method: "GET",
+			headers: {
+				Authorization: `token ${token}`,
+				Accept: "application/vnd.github.v3+json"
+			}
+		});
+		info("Response Headers:");
+		response.headers.forEach((value, key) => {
+			info(`${key}: ${value}`);
+		});
+	} catch (error$1) {
+		error(JSON.stringify(error$1));
+	}
 }
 Object.freeze({ status: "aborted" });
 function $constructor(name, initializer, params) {
@@ -30899,4 +30918,4 @@ var stringToRegex = (search) => {
 	return /^\/.+\/[AJUXgimsux]*$/.test(search) ? (0, import_lib.default)(search) : new RegExp(escapeStringRegexp(search), "g");
 };
 //#endregion
-export { warning as C, setOutput as S, __toESM as T, debug as _, _enum as a, info as b, number as c, stringbool as d, datetime as f, context as g, getOctokit as h, ZodDefault as i, object as l, composeConfigGet as m, escapeStringRegexp as n, array as o, paginateGraphql as p, sharedInputSchema as r, boolean as s, stringToRegex as t, string as u, error as v, __commonJSMin as w, setFailed as x, getInput as y };
+export { setOutput as C, __toESM as E, setFailed as S, __commonJSMin as T, context as _, _enum as a, getInput as b, number as c, stringbool as d, datetime as f, getOctokit as g, composeConfigGet as h, ZodDefault as i, object as l, paginateGraphql as m, escapeStringRegexp as n, array as o, getGitHubTokenInfo as p, sharedInputSchema as r, boolean as s, stringToRegex as t, string as u, debug as v, warning as w, info as x, error as y };
