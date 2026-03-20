@@ -2035,18 +2035,32 @@ var find_commits_with_pr_default = "query findCommitsWithAssociatedPullRequests(
 //#endregion
 //#region src/actions/drafter/lib/find-pull-requests/find-commits-with-pr.ts
 var findCommitsWithPr = async (params) => {
-	const data = await paginateGraphql(getOctokit().graphql, find_commits_with_pr_default, params, [
+	debug(`[findCommitsWithPr] called with params: ${JSON.stringify(params)}`);
+	const octokit = getOctokit();
+	debug("[findCommitsWithPr] Obtained Octokit instance");
+	debug("[findCommitsWithPr] Executing GraphQL query for commits with PRs");
+	const data = await paginateGraphql(octokit.graphql, find_commits_with_pr_default, params, [
 		"repository",
 		"object",
 		"history"
 	]);
-	if (data.repository?.object?.__typename !== "Commit") throw new Error("Query returned an unexpected result");
-	/**
-	* Extract commit nodes from the paginated response
-	*/
+	debug(`[findCommitsWithPr] GraphQL query result: ${JSON.stringify(data)}`);
+	if (data.repository?.object?.__typename !== "Commit") {
+		debug(`[findCommitsWithPr] Unexpected __typename: ${data.repository?.object?.__typename}`);
+		throw new Error("Query returned an unexpected result");
+	}
+	debug("[findCommitsWithPr] Extracting commit nodes from response");
 	const commits = (data.repository.object.history.nodes || []).filter((commit) => commit != null);
-	if (params.since) return commits.filter((commit) => !!commit?.committedDate && commit.committedDate !== params.since);
-	else return commits;
+	debug(`[findCommitsWithPr] Total commits extracted: ${commits.length}`);
+	if (params.since) {
+		debug(`[findCommitsWithPr] Filtering commits since: ${params.since}`);
+		const filteredCommits = commits.filter((commit) => !!commit?.committedDate && commit.committedDate !== params.since);
+		debug(`[findCommitsWithPr] Commits after filtering: ${filteredCommits.length}`);
+		return filteredCommits;
+	} else {
+		debug("[findCommitsWithPr] Returning all commits (no since filter)");
+		return commits;
+	}
 };
 //#endregion
 //#region src/actions/drafter/lib/find-pull-requests/find-pull-requests.ts

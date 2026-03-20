@@ -26999,9 +26999,19 @@ async function composeConfigGet(configFilename, currentContext) {
 }
 //#endregion
 //#region src/common/paginate-graphql.ts
-var getPath = (obj, path) => path.reduce((acc, key) => acc?.[key], obj);
-var hasPath = (obj, path) => getPath(obj, path) !== void 0;
+var getPath = (obj, path) => {
+	debug(`[paginateGraphql/getPath] Resolving path: ${JSON.stringify(path)} on object: ${typeof obj === "object" ? JSON.stringify(obj) : String(obj)}`);
+	const result = path.reduce((acc, key) => acc?.[key], obj);
+	debug(`[paginateGraphql/getPath] Result: ${JSON.stringify(result)}`);
+	return result;
+};
+var hasPath = (obj, path) => {
+	const exists = getPath(obj, path) !== void 0;
+	debug(`[paginateGraphql/hasPath] Path ${JSON.stringify(path)} exists: ${exists}`);
+	return exists;
+};
 var setPath = (obj, path, value) => {
+	debug(`[paginateGraphql/setPath] Setting path: ${JSON.stringify(path)} to value: ${JSON.stringify(value)}`);
 	const lastKey = path[path.length - 1];
 	if (lastKey === void 0) return;
 	const parent = getPath(obj, path.slice(0, -1));
@@ -27017,23 +27027,39 @@ var setPath = (obj, path, value) => {
 * @param {string[]} paginatePath - path to field to paginate
 */
 async function paginateGraphql(client, query, requestParameters, paginatePath) {
+	debug(`[paginateGraphql] Called with paginatePath: ${JSON.stringify(paginatePath)}, requestParameters: ${JSON.stringify(requestParameters)}`);
 	const nodesPath = [...paginatePath, "nodes"];
 	const pageInfoPath = [...paginatePath, "pageInfo"];
 	const endCursorPath = [...pageInfoPath, "endCursor"];
 	const hasNextPagePath = [...pageInfoPath, "hasNextPage"];
 	const hasNextPage = (data) => getPath(data, hasNextPagePath);
+	debug(`[paginateGraphql] Executing initial GraphQL query`);
 	const data = await client(query, requestParameters);
-	if (!hasPath(data, nodesPath)) throw new Error("Data doesn't contain `nodes` field. Make sure the `paginatePath` is set to the field you wish to paginate and that the query includes the `nodes` field.");
-	if (!hasPath(data, pageInfoPath) || !hasPath(data, endCursorPath) || !hasPath(data, hasNextPagePath)) throw new Error("Data doesn't contain `pageInfo` field with `endCursor` and `hasNextPage` fields. Make sure the `paginatePath` is set to the field you wish to paginate and that the query includes the `pageInfo` field.");
+	debug(`[paginateGraphql] Initial query result: ${JSON.stringify(data)}`);
+	if (!hasPath(data, nodesPath)) {
+		debug(`[paginateGraphql] Missing nodesPath: ${JSON.stringify(nodesPath)}`);
+		throw new Error("Data doesn't contain `nodes` field. Make sure the `paginatePath` is set to the field you wish to paginate and that the query includes the `nodes` field.");
+	}
+	if (!hasPath(data, pageInfoPath) || !hasPath(data, endCursorPath) || !hasPath(data, hasNextPagePath)) {
+		debug(`[paginateGraphql] Missing pageInfoPath or endCursorPath or hasNextPagePath`);
+		throw new Error("Data doesn't contain `pageInfo` field with `endCursor` and `hasNextPage` fields. Make sure the `paginatePath` is set to the field you wish to paginate and that the query includes the `pageInfo` field.");
+	}
+	let pageCount = 1;
 	while (hasNextPage(data)) {
+		debug(`[paginateGraphql] Page ${pageCount}: hasNextPage=true, fetching next page...`);
+		const afterCursor = getPath(data, [...pageInfoPath, "endCursor"]);
+		debug(`[paginateGraphql] Using after cursor: ${JSON.stringify(afterCursor)}`);
 		const newData = await client(query, {
 			...requestParameters,
-			after: getPath(data, [...pageInfoPath, "endCursor"])
+			after: afterCursor
 		});
+		debug(`[paginateGraphql] New page data: ${JSON.stringify(newData)}`);
 		const newNodes = getPath(newData, nodesPath);
 		setPath(data, pageInfoPath, getPath(newData, pageInfoPath));
 		setPath(data, nodesPath, [...getPath(data, nodesPath), ...newNodes]);
+		pageCount++;
 	}
+	debug(`[paginateGraphql] Pagination complete. Total pages: ${pageCount}`);
 	return data;
 }
 Object.freeze({ status: "aborted" });
