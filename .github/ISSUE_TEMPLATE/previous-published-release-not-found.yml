@@ -1,0 +1,78 @@
+name: Previous published release not found
+description: Report cases where Release Drafter could not detect the expected previous published release
+title: '[bug] previous published release not found'
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Release Drafter could not find a previous published release and created a draft without a comparison baseline.
+
+        Please fill out the details below so the behavior can be investigated.
+
+  - type: input
+    id: repository
+    attributes:
+      label: Repository
+      description: Which repository is affected?
+      placeholder: owner/repository
+    validations:
+      required: true
+
+  - type: input
+    id: branch_or_channel
+    attributes:
+      label: Branch or release channel
+      description: Which branch, commitish, or release channel were you drafting for?
+      placeholder: main
+    validations:
+      required: true
+
+  - type: input
+    id: expected_release
+    attributes:
+      label: Expected previous published release
+      description: Which published release did you expect Release Drafter to use as the baseline?
+      placeholder: v1.2.3
+    validations:
+      required: false
+
+  - type: dropdown
+    id: release_state
+    attributes:
+      label: What exists already?
+      description: Select all that apply.
+      multiple: true
+      options:
+        - A published GitHub release exists
+        - A draft release exists
+        - A git tag exists
+        - Multiple release branches or channels exist
+        - I am not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant Release Drafter config
+      description: Paste the relevant config, especially branch, commitish, tag, and release settings.
+      render: yaml
+    validations:
+      required: false
+
+  - type: textarea
+    id: details
+    attributes:
+      label: What did you expect to happen?
+      description: Describe why you expected a previous published release to be found.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste relevant action logs or screenshots of the releases page.
+      render: shell
+    validations:
+      required: false
