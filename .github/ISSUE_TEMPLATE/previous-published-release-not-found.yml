@@ -9,6 +9,27 @@ body:
 
         Please fill out the details below so the behavior can be investigated.
 
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+      - label: I have searched the existing issues
+        required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/release-drafter/release-drafter/blob/master/docs/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
+        - label: I agree to follow this project's Code of Conduct 12
+          required: true
+        - label: I agree to follow this project's Code of Conduct 13
+          required: false
+
   - type: input
     id: repository
     attributes:
@@ -23,7 +44,7 @@ body:
     attributes:
       label: Branch or release channel
       description: Which branch, commitish, or release channel were you drafting for?
-      placeholder: main
+      placeholder: "'commitish: main' without tag-prefix"
     validations:
       required: true
 
@@ -31,7 +52,7 @@ body:
     id: expected_release
     attributes:
       label: Expected previous published release
-      description: Which published release did you expect Release Drafter to use as the baseline?
+      description: Which published release did you expect Release Drafter to use as the baseline? Enter the tag_name of that release
       placeholder: v1.2.3
     validations:
       required: false
@@ -39,7 +60,7 @@ body:
   - type: dropdown
     id: release_state
     attributes:
-      label: What exists already?
+      label: What's in your repo already?
       description: Select all that apply.
       multiple: true
       options:
@@ -54,9 +75,27 @@ body:
   - type: textarea
     id: config
     attributes:
-      label: Relevant Release Drafter config
-      description: Paste the relevant config, especially branch, commitish, tag, and release settings.
+      label: Relevant Release Drafter config(s) and workflows.
+      description: Paste the relevant config(s), including Github Actions workflow(s).
       render: yaml
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Paste action logs. If possible, rerun the workflow with debug logging enabled and paste the relevant logs here.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Paste relevant screenshots of the releases page.
+      render: shell
     validations:
       required: false
 
@@ -67,12 +106,3 @@ body:
       description: Describe why you expected a previous published release to be found.
     validations:
       required: true
-
-  - type: textarea
-    id: logs
-    attributes:
-      label: Logs or screenshots
-      description: Paste relevant action logs or screenshots of the releases page.
-      render: shell
-    validations:
-      required: false
